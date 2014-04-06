@@ -1,0 +1,84 @@
+= projname =
+
+= Goals =
+
+A self contained, portable CNC device that can (in order of importance)
+
+* 3D print
+* laser cut paper
+* mill pcbs
+
+= Why =
+
+CNC's, their design, build, maintenance and running is like catnip for all types of engineers. I use all three devices frequently enough to warrant having such a device.
+
+And because i can.
+
+= Design =
+
+== Assumptions ==
+
+To make the print easy to store and be portable at the same time, it makes sense to enclose it within a case of some kind. (not the popfab, http://vimeo.com/45911972,  was in large part inspiration for this. However no documentation exists for the design or build).
+
+Due to this requirement, the type of kinematics to use becomes obvious; a delta or polar kinematics system would be too large or incredibly difficult to implement.
+
+Supporting all three uses on one head is also orders-of-magnitude more difficult, so a swappable head system a la popfab will be employed.
+
+Finally, due to the multi-use nature of the device, one design constraint seems to be the bed size; ie it must be able to handle all three use cases. Standard paper sizes in the EU are A4, so this will be the size aimed for.
+
+* Use an aluminium storage case as enclosure
+* Traditional serial kinematics
+* A4 bed
+** Must be heated for 3D printing
+* Multiple replaceable heads
+
+=== Design Refinements ===
+
+** X folds down flat
+*
+
+
+
+
+
+
+
+== Aluminium Storage Suitacse == 
+
+http://www.ebay.co.uk/itm/400536151068?ssPageName=STRK:MEWNX:IT&_trksid=p3984.m1497.l2649
+
+ALUMINIUM ELECTRICIAN LOCKABLE FLIGHT CASE TOOL CHEST BOX BRIEFCASE
+
+Advertised dimensions: 18 X 13 X 6 INCH'S
+
+Measured dimensions: 
+
+case_width  = 460;
+case_depth  = 330;
+case_height = 160;
+
+== A4 Bed ==
+
+A4 = 210 x 297 mm
+
+The RepRap site has an example of an A4 heated bed
+
+http://reprap.org/wiki/PCB_Heatbed#MK2_A4
+
+a picture
+
+http://reprap.org/wiki/File:Big_Heatbed.JPG
+
+A4 PCB copper clad board - http://www.ebay.co.uk/itm/210x297mm-Double-Sided-Copper-Clad-PCB-Epoxy-Glass-Fibre-/200995771271?pt=UK_BOI_Electrical_Components_Supplies_ET&hash=item2ecc481387
+
+== Hotends ==
+
+All metal hot end chosen for future filament materials experimentation. Also no danger of borking the hot end from accidental high temps
+
+The choice was between the E3D and prusa:
+
+* http://e3d-online.com/E3D-HotEnds/E3D-DirectFeed-HotEnds/E3D-V5-3mm-Direct-All-Metal-HotEnd
+* https://www.reprapsource.com/en/show/6891
+
+both have their quirks, though the E3D hotend is better documented. In the end i chose the E3D because of that, and the its availability. The prusa hotend is believed to be superior but it wasnt available, and i dont think i'll ever be printing to a level where i will extract the full potential of it.
+
