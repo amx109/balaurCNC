@@ -71,6 +71,18 @@ http://reprap.org/wiki/File:Big_Heatbed.JPG
 
 A4 PCB copper clad board - http://www.ebay.co.uk/itm/210x297mm-Double-Sided-Copper-Clad-PCB-Epoxy-Glass-Fibre-/200995771271?pt=UK_BOI_Electrical_Components_Supplies_ET&hash=item2ecc481387
 
+== Extruder ==
+
+based on 
+
+http://forums.reprap.org/read.php?94,147175,183883
+
+there seems to be an acceptable lightweight geared stepper motor that can be used for a direct drive hot end.
+
+http://www.2engineers.com/shop/geared150/
+
+possible alternative - http://www.aliexpress.com/item/25byhj60-04a-25mm-stepper-motor-metal-gear-box/1268200073.html 
+
 == Hotends ==
 
 All metal hot end chosen for future filament materials experimentation. Also no danger of borking the hot end from accidental high temps
@@ -82,3 +94,14 @@ The choice was between the E3D and prusa:
 
 both have their quirks, though the E3D hotend is better documented. In the end i chose the E3D because of that, and the its availability. The prusa hotend is believed to be superior but it wasnt available, and i dont think i'll ever be printing to a level where i will extract the full potential of it.
 
+
+= CNC Implementation =
+
+http://www.ebay.co.uk/itm/Qty-4-Lengths-63-x-63-x-3-0-mm-Aluminium-Extruded-Angles-500-2500mm-/360689783433?pt=UK_BOI_Metalworking_Milling_Welding_Metalworking_Supplies_ET&var=630140627667&hash=item53fac95289
+
+= Electronics =
+
+Beaglebone Black
+
+= Software =
+http://www.machinekit.io/useful - Linux CNC packaged into Debian with a RT kernel for the beaglebone black
