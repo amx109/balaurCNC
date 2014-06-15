@@ -97,7 +97,24 @@ both have their quirks, though the E3D hotend is better documented. In the end i
 
 = CNC Implementation =
 
-http://www.ebay.co.uk/itm/Qty-4-Lengths-63-x-63-x-3-0-mm-Aluminium-Extruded-Angles-500-2500mm-/360689783433?pt=UK_BOI_Metalworking_Milling_Welding_Metalworking_Supplies_ET&var=630140627667&hash=item53fac95289
+== kinematics ==
+=== linear rod+bearings ===
+2x sk20 = - 24 GBP - http://www.ebay.co.uk/itm/x4pcs-SK20-Shaft-Support-ID20mm-Samic-CNC-XYZ-/310353341727?pt=LH_DefaultDomain_3&hash=item4842802d1f 
+2x sc20 = 26.5 GBP - http://www.ebay.co.uk/itm/x2pcs-New-SC20-Housing-ID20mm-Samic-Linear-Bearing-CNC-SMA20-/221072318760?pt=LH_DefaultDomain_3&hash=item3378efe128
+2x 500mm 20mm round rail = 24.68 GBP - http://www.ebay.co.uk/itm/EGR-15-20-25mm-1m-Linear-Motion-Carriage-Guide-Rail-Slide-Block-Flange-Block-/400704914081?pt=LH_DefaultDomain_3&var=&hash=item5d4bdfc2a1
+
+total = 75.18
+
+OR
+
+kit (with 4x sc20) = 68 gbp - http://www.ebay.co.uk/itm/x2-20mm-Rails-500mm-x4-SK20-x4-SC20UU-CNC-Axis-Custom-3d-Printer-/221440004481?pt=UK_BOI_Metalworking_Milling_Welding_Metalworking_Supplies_ET&hash=item338eda5181
+
+=== linear slide + bearings ===
+all items from hinwin.com and http://www.ebay.co.uk/itm/EGR-15-20-25mm-1m-Linear-Motion-Carriage-Guide-Rail-Slide-Block-Flange-Block-/400704914081?pt=LH_DefaultDomain_3&var=&hash=item5d4bdfc2a1
+
+1m slide = EGR151000 = 75gbp
+2 x egh15ca = 2 x 21 gbp = 42gbp
+total = 117 gbp
 
 = Electronics =
 
