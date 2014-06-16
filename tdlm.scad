@@ -59,13 +59,16 @@ bed_base_height = 5;
 A4_width = 210;
 A4_length = 297;
 heated_bed_height = 3;
-rod_length = 380;
 rail_width = (A4_width+42)/2; //42 is a magic number that makes the rails fit the bed
+
+rod_length = 380;
+
 linear_rod_diameter = 20;
 sc20_screw_hole_offset = 40;
 x_carriage_mount_bolt_size = 5;
-bearing_y_pos= -144;
 linear_rod_support_x_spacing = 360;
+
+bearing_y_pos= -144;
 
 hinge_outer_flange_length = 18;
 hinge_width = 50;
@@ -74,15 +77,16 @@ hinge_barrel_circumference = 5.5;
 hinge_inner_hole_distance = 20;
 hinge_outer_hole_distance = 41;
 
-hinge_open = 0;
-tslot = 0; //set to 1 for tslot design
+
+hinge_open = 1;
+tslot = 1; //set to 1 for tslot design
 
 /* the base that the whole rig sits on */
 module base()
 {
 	color(FiberBoard)
 	{
-		linear_extrude(height = bed_base_height) roundedSquare(pos=[case_lid_int_width-2,case_lid_int_depth-2], r=bed_base_height);
+		linear_extrude(height = bed_base_height) roundedSquare(pos=[case_lid_int_width-6,case_lid_int_depth-2], r=bed_base_height);
 	}
 }
 
@@ -230,6 +234,123 @@ module x_carriage_mount()
 	}
 }
 
+module x_carriage_tslot_mount()
+{
+	/*
+	l_bracket_thickness = 3;
+	l_bracket_size = 54;
+	l_bracket_length = 50;
+	
+	l_bracket(l_bracket_size+l_bracket_thickness, l_bracket_length, l_bracket_thickness); */
+	
+	bracket_size = 34;
+	bracket_thickness = 5;
+	bracket_sc_length = 39.8;
+	bracket_clamp_overhang_length = 0;
+	bracket_pivot_overhang_length = 20;
+	upper_bracket_offset = 7;
+	angle = (hinge_open == 1) ? 90 : 0;
+	screw_hole_offset = 26;
+	
+	color(Stainless)
+	
+	/****** lower carriage mount plate ******/
+	difference()
+	{
+		/**** lower mount plate ***/
+		x_carriage_mount_bracket(bracket_size,
+									   bracket_clamp_overhang_length, 
+									   bracket_sc_length, 
+									   bracket_pivot_overhang_length, 
+									   bracket_thickness);
+									   
+		/**** hole for the hinge ****/
+		translate([(hinge_outer_flange_length/2)+((bracket_sc_length/2)-hinge_outer_flange_length)+bracket_pivot_overhang_length,
+					0,
+					(bracket_thickness/2)-(hinge_flange_thickness/2)+0.05])
+			cube(size=[hinge_outer_flange_length+0.1, 
+					   hinge_width+0.1,
+					   hinge_flange_thickness+0.1], 
+					   center=true);
+					   
+		/***** mounting holes for bearing*****/
+		for(i=[1 : 4])
+		{
+			rotate([180,0,i*90])
+				translate([screw_hole_offset/2,screw_hole_offset/2,(-bracket_thickness/2)-0.1])
+					csk_bolt(x_carriage_mount_bolt_size-1,14);
+		}
+		
+		/****** mounting holes for hinge ******/
+		for(i=[1,-1])
+		{
+			translate([(bracket_size/2)+(hinge_outer_flange_length+(hinge_barrel_circumference/2))/2,
+					   i*(hinge_outer_hole_distance/2),
+					   -(bracket_thickness)])
+				#csk_bolt(3,14);
+		}
+	}
+	
+	color(Brass)
+	/**** clamp bolt and nut ****/
+	translate([-(bracket_sc_length/2)+8,0,-(bracket_thickness/2)-0.1])
+	{
+		csk_bolt(x_carriage_mount_bolt_size,18);
+		if (hinge_open == 0) { translate([0,0,9.5]) flat_nut(5); }
+	}
+	
+	/***** hinge + upper carriage (flippy over bit) *******/
+	translate([(bracket_sc_length/2)+bracket_pivot_overhang_length+(hinge_barrel_circumference/2)-0.1,0,(hinge_flange_thickness*1.285)+(bracket_thickness/2)])
+	{
+		/****** hinge *******/
+		color(Brass) mirror([1,0,0]) hinge(hinge_open);
+		
+		/******* rotate all the things! *******/
+		rotate([0,angle,0])
+		{
+			color(Stainless)
+			difference()
+			{
+				/******* upper bracket *******/
+				translate ([-(bracket_sc_length/2)-bracket_pivot_overhang_length-((hinge_barrel_circumference+0.1)/2),
+							0,
+							(bracket_thickness/2)-(hinge_flange_thickness*1.25)])
+				x_carriage_mount_bracket(bracket_size, 
+											   bracket_clamp_overhang_length, 
+											   bracket_sc_length, 
+											   bracket_pivot_overhang_length, 
+											   bracket_thickness);
+				
+				/******** hole for clamp nut *******/
+				translate([-bracket_sc_length-bracket_pivot_overhang_length-(hinge_barrel_circumference/2)+8,0,-6])
+					csk_bolt(x_carriage_mount_bolt_size,20);
+				
+				/****** mounting holes for the hinge ******/
+				for(i=[1,-1])
+				{
+					translate([-(hinge_outer_flange_length+(hinge_barrel_circumference/2))/2,
+										i*(hinge_inner_hole_distance/2),
+										-(bracket_thickness)])
+						csk_bolt(3,14);
+				}
+			}
+			
+			/*** hinge screws ***/
+			for(i=[1,-1])
+			{
+				translate([-(hinge_outer_flange_length+(hinge_barrel_circumference/2))/2,
+									i*(hinge_inner_hole_distance/2),
+									-(bracket_thickness/2)-0.3])
+				{
+					csk_bolt(3,12);
+					translate([0,0,6]) flat_nut(3);
+				}
+			}
+		}
+	}
+}
+
+
 module l_bracket(size, length, thickness)
 {
 	difference()
@@ -361,12 +482,12 @@ module draw() /****** built from the bottom up *******/
 	
 	
 	/************* suitcase *************/
-	//translate([-201,-165,-20]) suitcase();
+	%translate([-230,-165,-20]) suitcase();
 	
 	/**** base for the whole machine - will sit inside the suitcase ****/
-	//((case_lid_int_width-2-linear_rod_support_x_spacing)/2)-10
-	%translate([0,0,-bed_base_height]) base();
+	translate([0,0,-bed_base_height]) base();
 	
+	x_wall_offset = 12;
 	
 	if(tslot)
 	{
@@ -375,17 +496,29 @@ module draw() /****** built from the bottom up *******/
 		{
 			mirror([0,i,0])
 			{
-				translate([0,-rail_width-15,15])
+				translate([0,-rail_width-x_wall_offset,15])
 				{
-					tslot_centered(case_lid_int_width-2, 30);
+					/***** the tslot *****/
+					tslot_centered(case_lid_int_width-6, 30);
+					
+					/***** linear slide and bearing ******/
+					translate([0,0,15+(12.5/2)])
+					{
+						color(Aluminum) egr(15, case_lid_int_width-6); //slide
+						translate([bearing_y_pos,0,8])
+						{
+							color([0.7,0.7,0.7]) egh_ca(15); //bearing
+							translate([0,0,12.25]) x_carriage_tslot_mount();
+						}
+					}
 				}
 			}
 			
 			mirror([i,0,0])
 			{
-				translate([((case_lid_int_width-2)/2)-15,0,15])
+				translate([((case_lid_int_width-6)/2)-15,0,15])
 				{
-					rotate ([0,0,90]) tslot_centered(case_lid_int_depth-2-60, 30);
+					rotate ([0,0,90]) tslot_centered(case_lid_int_depth-2-60-(x_wall_offset/2), 30);
 				}
 			}
 		}
@@ -421,16 +554,12 @@ module draw() /****** built from the bottom up *******/
 		}
 	}
 	
-	
-
-	
 	/************* bed *************/
-	translate([0,0,70])
+	translate([-40,0,70])
 	{
-		//color(Aluminum) a4Bed();
-		//translate([0,0,3]) a4Bed();
+		color(Aluminum) a4Bed();
+		translate([0,0,3]) a4Bed();
 	}
-	
 	
 	
 	
@@ -438,6 +567,6 @@ module draw() /****** built from the bottom up *******/
 	
 }
 
-egh_ca(15, 500);
 
-//draw();
+
+draw();
