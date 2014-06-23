@@ -94,6 +94,9 @@ The choice was between the E3D and prusa:
 
 both have their quirks, though the E3D hotend is better documented. In the end i chose the E3D because of that, and the its availability. The prusa hotend is believed to be superior but it wasnt available, and i dont think i'll ever be printing to a level where i will extract the full potential of it.
 
+=== Drive Gear ===
+
+http://www.ebay.co.uk/itm/MK8-Drive-Gear-for-1-7-3mm-plastic-filament-35-more-power-than-MK7-Best-in-test-/281302443633?pt=LH_DefaultDomain_0&hash=item417eeea671
 
 = CNC Implementation =
 
@@ -115,6 +118,14 @@ all items from hinwin.com and http://www.ebay.co.uk/itm/EGR-15-20-25mm-1m-Linear
 1m slide = EGR151000 = 75gbp
 2 x egh15ca = 2 x 21 gbp = 42gbp
 total = 117 gbp
+
+==== Beam Deflection Calculations ====
+
+from http://www.engineersedge.com/beam-deflection-menu.htm
+http://www.engineersedge.com/beam_bending/beam_bending3.htm
+http://www.engineersedge.com/beam_bending/calculators_protected/beam_deflection_3.htm
+
+
 
 == hinged X axis ==
 
