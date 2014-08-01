@@ -138,5 +138,15 @@ http://www.engineersedge.com/beam_bending/calculators_protected/beam_deflection_
 
 Beaglebone Black
 
+== laser ==
+lens
+
+http://www.ebay.co.uk/sch/i.html?_trksid=p2047675.m570.l1313.TR1.TRC0.A0.H0.X405-G-2&_nkw=405-G-2&_sacat=0&_from=R40
+
+laser
+http://www.ebay.co.uk/sch/i.html?_trksid=p2050601.m570.l1313&_nkw=Nichia+3+watt+9mm&_sacat=0&_from=R40
+
+from https://www.kickstarter.com/projects/1537608281/lazerblade-the-affordable-laser-cutter-engraver
+
 = Software =
 http://www.machinekit.io/useful - Linux CNC packaged into Debian with a RT kernel for the beaglebone black
