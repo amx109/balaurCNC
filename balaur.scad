@@ -492,8 +492,6 @@ module y_carriage()
 	{
 		mirror([0,i,0])
 			translate([0,x_axis_tslot_width,y_height/2]) rotate([0,90,0]) tslot_centered(y_height, 30);
-		mirror([i,0,0])
-			translate([19,0,y_height]) rotate([90,0,0]) linear_rod(4, case_bottom_int_depth-80);
 	}
 	
 	
@@ -577,8 +575,7 @@ module draw() /****** built from the bottom up *******/
 			cube(size=[10,300,1], center=true); //lip of bottom part
 		%translate([0,0,case_bottom_ext_height+case_lid_ext_height])
 			cube(size=[10,300,1], center=true); //ceiling of top part
-	}
-	
+	}	
 	
 	/************* suitcase *************/
 	$color([0,1,0]) translate([-230,-165,-20]) suitcase();
