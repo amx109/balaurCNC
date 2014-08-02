@@ -1,4 +1,10 @@
-= projname =
+= BalaurCNC =
+
+from https://en.wikipedia.org/wiki/Balaur
+
+" A balaur is quite large, has fins, feet, and is polycephalous (it usually has three, sometimes seven, or even twelve serpent heads)"
+
+seems very apt, especially as some twit has taken 'Cerberus' for a delta CNC.
 
 = Goals =
 
