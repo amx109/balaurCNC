@@ -156,3 +156,7 @@ from https://www.kickstarter.com/projects/1537608281/lazerblade-the-affordable-l
 
 = Software =
 http://www.machinekit.io/useful - Linux CNC packaged into Debian with a RT kernel for the beaglebone black
+
+
+http://www.openbuilds.com/threads/new-build-5-controller-cam-options-your-opinions-please.452/
+

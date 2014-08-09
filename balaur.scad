@@ -29,7 +29,6 @@ include <MCAD/2Dshapes.scad>
 use <MCAD/materials.scad>
 use <tslot.scad>
 
-
 include <suitcase.scad>
 use <SK.scad>
 use <SC.scad>
@@ -51,7 +50,7 @@ use <MCAD/metric_fastners.scad>
 
 
 /*************************** variables *****************************/ 
- $fn=50; 
+$fn=50; 
  
 /* suitcase internal dimensions 460x330x160 */
 bed_base_height = 5;
@@ -79,8 +78,7 @@ hinge_barrel_circumference = 5.5;
 hinge_inner_hole_distance = 20;
 hinge_outer_hole_distance = 41;
 
-
-hinge_open = 0;
+hinge_open = 1;
 tslot = 1; //set to 1 for tslot design
 
 /* the base that the whole rig sits on */
@@ -236,7 +234,7 @@ module x_carriage_mount()
 	}
 }
 
-module x_carriage_tslot_mount()
+module y_carriage_tslot_mount(show_fixtures)
 {
 	/*
 	l_bracket_thickness = 3;
@@ -266,7 +264,7 @@ module x_carriage_tslot_mount()
 									   bracket_pivot_overhang_length, 
 									   bracket_thickness);
 									   
-		/**** hole for the hinge ****/
+		/**** gap in lower mount plate for the hinge ****/
 		translate([(hinge_outer_flange_length/2)+((bracket_sc_length/2)-hinge_outer_flange_length)+bracket_pivot_overhang_length,
 					0,
 					(bracket_thickness/2)-(hinge_flange_thickness/2)+0.05])
@@ -283,29 +281,43 @@ module x_carriage_tslot_mount()
 					csk_bolt(x_carriage_mount_bolt_size-1,14);
 		}
 		
-		/****** mounting holes for hinge ******/
-		for(i=[1,-1])
+		/****** mounting hole for hinge ******/
+		translate([32.2,
+				   -8,
+				   -(bracket_thickness)])
+			csk_bolt(3,14);
+			
+		translate([-(bracket_sc_length/2)+8,0,-(bracket_thickness/2)-0.1])
 		{
-			translate([(bracket_size/2)+(hinge_outer_flange_length+(hinge_barrel_circumference/2))/2,
-					   i*(hinge_outer_hole_distance/2),
-					   -(bracket_thickness)])
-				$csk_bolt(3,14);
+			csk_bolt(x_carriage_mount_bolt_size,18);
 		}
 	}
 	
-	color(Brass)
-	/**** clamp bolt and nut ****/
-	translate([-(bracket_sc_length/2)+8,0,-(bracket_thickness/2)-0.1])
+	if(show_fixtures)
 	{
-		csk_bolt(x_carriage_mount_bolt_size,18);
-		if (hinge_open == 0) { translate([0,0,9.5]) flat_nut(5); }
+		color(Brass)
+		/**** clamp bolt and nut ****/
+		translate([-(bracket_sc_length/2)+8,0,-(bracket_thickness/2)-0.1])
+		{
+			csk_bolt(x_carriage_mount_bolt_size,18);
+			if (hinge_open == 0) { translate([0,0,9.5]) flat_nut(5); }
+		}
 	}
-	
+		
 	/***** hinge + upper carriage (flippy over bit) *******/
 	translate([(bracket_sc_length/2)+bracket_pivot_overhang_length+(hinge_barrel_circumference/2)-0.1,0,(hinge_flange_thickness*1.285)+(bracket_thickness/2)])
 	{
 		/****** hinge *******/
-		//color(Brass) mirror([1,0,0]) hinge(hinge_open);
+		if(show_fixtures)
+		{
+			color(Brass)
+			translate([0,-((bracket_size/2)-(hinge_width/2)) + ((bracket_size-(hinge_width/2))/2),0])
+			difference()
+			{
+				mirror([1,0,0]) translate([0,0,0]) hinge(hinge_open);
+				translate([-hinge_outer_flange_length/4,(hinge_width/4)+0.1,0]) cube(size=[(hinge_outer_flange_length*2),(hinge_width/2)+0.2,50], center=true);
+			}
+		}
 		
 		/******* rotate all the things! *******/
 		rotate([0,angle,0])
@@ -327,17 +339,15 @@ module x_carriage_tslot_mount()
 				translate([-bracket_sc_length-bracket_pivot_overhang_length-(hinge_barrel_circumference/2)+8,0,-6])
 				{
 					csk_bolt(x_carriage_mount_bolt_size,20);
-					
 				}
 				
-				/****** mounting holes for the hinge ******/
-				for(i=[1,-1])
-				{
-					translate([-(hinge_outer_flange_length+(hinge_barrel_circumference/2))/2,
-										i*(hinge_inner_hole_distance/2),
-										-(bracket_thickness)])
-						csk_bolt(3,14);
-				}
+				/****** mounting hole for the hinge ******/
+				
+				translate([-(hinge_outer_flange_length+(hinge_barrel_circumference/2))/2,
+									(hinge_inner_hole_distance/2)-7.5,
+									-(bracket_thickness)])
+					csk_bolt(3,14);
+				
 			}
 			
 			//calibration block - todo - delete
@@ -346,16 +356,18 @@ module x_carriage_tslot_mount()
 						6])
 				$cube(size=[4.4,15,5], center=true);
 			
-			/*** hinge screws ***/
-			for(i=[1,-1])
+			if(show_fixtures)
 			{
+				/*** hinge screws ***/
+				
 				translate([-(hinge_outer_flange_length+(hinge_barrel_circumference/2))/2,
-									i*(hinge_inner_hole_distance/2),
+									(hinge_inner_hole_distance/2)-7.5,
 									-(bracket_thickness/2)-0.3])
 				{
 					csk_bolt(3,12);
 					translate([0,0,6]) flat_nut(3);
 				}
+				
 			}
 		}
 	}
@@ -480,7 +492,7 @@ module x_carriage()
 	translate([bearing_y_pos,0,8])
 	{
 		color([0.7,0.7,0.7]) egh_ca(15); //bearing
-		translate([-10,0,12.25]) x_carriage_tslot_mount();
+		translate([-10,0,12.25]) y_carriage_tslot_mount(1);
 	}
 }
 
@@ -507,7 +519,7 @@ module z_carriage()
 	
 }
 
-module drawX();
+module drawX()
 {
 	if(tslot)
 	{
@@ -583,8 +595,7 @@ module draw() /****** built from the bottom up *******/
 	/**** base for the whole machine - will sit inside the suitcase ****/
 	$translate([0,0,-bed_base_height]) base();
 	
-	darwX();
-	//x_carriage();
+	$drawX();
 	
 	if(hinge_open)
 	{
@@ -596,7 +607,7 @@ module draw() /****** built from the bottom up *******/
 	}
 	$y_carriage();
 	
-	z_carriage();
+	$z_carriage();
 	
 	/************* bed *************/
 	translate([-40,0,70])
@@ -604,12 +615,7 @@ module draw() /****** built from the bottom up *******/
 		$color(Aluminum) a4Bed();
 		translate([0,0,3]) a4Bed();
 	}
-	
-	
-	
-	
-	
 }
 
-
-draw();
+$draw();
+y_carriage_tslot_mount(0);
