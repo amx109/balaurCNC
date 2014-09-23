@@ -24,7 +24,7 @@ And because i can.
 
 ## Assumptions
 
-To make the print easy to store and be portable at the same time, it makes sense to enclose it within a case of some kind. (not the popfab, http://vimeo.com/45911972,  was in large part inspiration for this. However no documentation exists for the design or build).
+To make the print easy to store and be portable at the same time, it makes sense to enclose it within a case of some kind. (note the popfab, http://vimeo.com/45911972,  was in large part inspiration for this. However no documentation exists for the design or build).
 
 Due to this requirement, the type of kinematics to use becomes obvious; a delta or polar kinematics system would be too large or incredibly difficult to implement.
 
@@ -35,12 +35,12 @@ Finally, due to the multi-use nature of the device, one design constraint seems 
 * Use an aluminium storage case as enclosure
 * Traditional serial kinematics
 * A4 bed
-** Must be heated for 3D printing
+  * Must be heated for 3D printing
 * Multiple replaceable heads
 
 ### Design Refinements
 
-** X folds down flat
+* Y folds down flat
 *
 
 
@@ -49,7 +49,7 @@ Finally, due to the multi-use nature of the device, one design constraint seems 
 
 
 
-## Aluminium Storage Suitacse == 
+## Aluminium Storage Suitacse
 
 http://www.ebay.co.uk/itm/400536151068?ssPageName=STRK:MEWNX:IT&_trksid=p3984.m1497.l2649
 
@@ -144,7 +144,7 @@ http://www.engineersedge.com/beam_bending/calculators_protected/beam_deflection_
 
 # Electronics
 
-Beaglebone Black
+Beaglebone Black with machinekit, custom stepper drivers and magic sauce
 
 ## laser
 lens
