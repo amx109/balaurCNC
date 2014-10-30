@@ -590,12 +590,12 @@ module draw() /****** built from the bottom up *******/
 	}	
 	
 	/************* suitcase *************/
-	$color([0,1,0]) translate([-230,-165,-20]) suitcase();
+	//color([0,1,0]) translate([-230,-165,-20]) suitcase();
 	
 	/**** base for the whole machine - will sit inside the suitcase ****/
-	$translate([0,0,-bed_base_height]) base();
+	translate([0,0,-bed_base_height]) base();
 	
-	$drawX();
+	drawX();
 	
 	if(hinge_open)
 	{
@@ -605,17 +605,16 @@ module draw() /****** built from the bottom up *******/
 	{
 		translate([bearing_y_pos,0,30+24+10]) rotate([0,00,0]) y_carriage();
 	}
-	$y_carriage();
 	
-	$z_carriage();
+	z_carriage();
 	
 	/************* bed *************/
-	translate([-40,0,70])
+	translate([-60,0,70])
 	{
 		$color(Aluminum) a4Bed();
-		translate([0,0,3]) a4Bed();
+		translate([1.5,0,3]) a4Bed();
 	}
 }
 
-$draw();
-y_carriage_tslot_mount(0);
+draw();
+$y_carriage_tslot_mount(0);

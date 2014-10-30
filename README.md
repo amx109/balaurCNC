@@ -121,11 +121,13 @@ kit (with 4x sc20) = 68 gbp - http://www.ebay.co.uk/itm/x2-20mm-Rails-500mm-x4-S
 ### linear slide + bearings
 all items from hinwin.com and http://www.ebay.co.uk/itm/EGR-15-20-25mm-1m-Linear-Motion-Carriage-Guide-Rail-Slide-Block-Flange-Block-/400704914081?pt=LH_DefaultDomain_3&var=&hash=item5d4bdfc2a1
 
-1m slide = EGR151000 = 75gbp
+1m slide = EGR 15-1000 = 75gbp
 2 x egh15ca = 2 x 21 gbp = 42gbp
 total = 117 gbp
 
 http://www.lmbearings.com/index.php?p=linear-guides
+
+http://www.wmh-trans.co.uk/Products/HIWIN_LINEAR_GUIDE_RAILS_EGR15
 
 #### Beam Deflection Calculations
 
