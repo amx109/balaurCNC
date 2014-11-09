@@ -1,12 +1,14 @@
 //(C) Nathan Zadoks 2011
 //CC-BY-SA or GPLv2, pick your poison.
+//modified 2014-11-03 by Amran Anjum (amx109) to make sure the tslot is centered on X/Y/Z
+
 module tslot(
-	size=10,	//size of each side
-	length=10,	//length. descriptive enough, no?
+	size=10,		//size of each side
+	length=10,		//length. descriptive enough, no?
 	thickness=3,	//thickness of the 'sheet'
-	gap=0,		//gap, thickness of the lower part of the 'T'
+	gap=0,			//gap, thickness of the lower part of the 'T'
 	center=false,	//somewhat vague. todo.
-	nut=false,	//set to true to make a fitting T-slot nut
+	nut=false,		//set to true to make a fitting T-slot nut
 ){
 	start=thickness/sqrt(2);
 	if(nut){
@@ -18,8 +20,8 @@ module tslot(
 	}	
 	else{
 		color([0.5,0.5,0.5])
+		translate([0,0,-length/2])
 		linear_extrude(height=length,center=center)
-		translate([15,15])
 		difference(){
 			union(){
 				for(d=[0:3]) rotate([0,0,d*90]) polygon(points=[

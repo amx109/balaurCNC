@@ -135,7 +135,9 @@ from http://www.engineersedge.com/beam-deflection-menu.htm
 http://www.engineersedge.com/beam_bending/beam_bending3.htm
 http://www.engineersedge.com/beam_bending/calculators_protected/beam_deflection_3.htm
 
+### belts
 
+choose gt2 - http://forums.reprap.org/read.php?14,419336
 
 ## hinged X axis
 
@@ -164,3 +166,7 @@ http://www.machinekit.io/useful - Linux CNC packaged into Debian with a RT kerne
 
 http://www.openbuilds.com/threads/new-build-5-controller-cam-options-your-opinions-please.452/
 
+#Pricing
+
+30mm t-slot alu extrusion 2N 90		- £7.97 per m - http://www.valuframe.co.uk/Series-8X30-Aluminium-Profiles.html
+20mm x 40mm v-slot alu extrusion	- £8.13 per m
