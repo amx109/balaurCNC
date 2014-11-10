@@ -28,16 +28,16 @@ module briefcase()
 	color(Aluminum)
 	{
 		//top part
-		translate([0,caseY+case_lid_ext_Z,case_bottom_ext_Z])
+		translate([0,(case_lid_ext_Z/2)+(caseY/2),(caseY/2)+case_bottom_ext_Z/2])
 		{
 			rotate([90,0,0])
 			{
 				difference()
 				{
-					cube(size = [caseX, caseY, case_lid_ext_Z]);
-					translate([case_lid_wall_thickness, case_lid_wall_thickness, case_lid_wall_thickness])
+					cube(size = [caseX, caseY, case_lid_ext_Z], center=true);
+					translate([0,0,(case_lid_ext_Z-case_lid_int_Z)/2])
 					{
-						cube(size = [case_lid_int_X, case_lid_int_Y, case_lid_int_Z]);
+						cube(size = [case_lid_int_X, case_lid_int_Y, case_lid_int_Z+0.1], center=true);
 					}
 				}
 			}
@@ -45,10 +45,10 @@ module briefcase()
 		//bottom part
 		difference()
 		{
-			cube(size = [caseX, caseY, case_bottom_ext_Z]);
-			translate([case_bottom_wall_thickness,case_bottom_wall_thickness,case_bottom_wall_thickness])
+			cube(size = [caseX, caseY, case_bottom_ext_Z], center=true);
+			translate([0,0,(case_bottom_ext_Z-case_bottom_int_Z)/2])
 			{
-				cube(size = [case_bottom_int_X, case_bottom_int_Y, case_bottom_int_Z]);
+				cube(size = [case_bottom_int_X, case_bottom_int_Y, case_bottom_int_Z+0.1], center=true);
 			}
 		}
 	}

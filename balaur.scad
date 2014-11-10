@@ -35,12 +35,15 @@ A4_length = 297;
 tslot_size = 30; // we're going to use 30mm tslot
 
 //variables to fuck with Y axis position/hinge/bed
-Yaxis_X_position = -80;
 Zheight = 240; //max height of Z axis
+
+Yaxis_X_position = -80;
+Yaxis_Z_position = 166;
 hinge_open = 0;
-moveBed = 1;
+moveBed = 0;
 bedleftright = 1;
 bed_X_shift = moveBed ? (bedleftright ? -A4_length/2 : A4_length/2) : 0;
+
 
 
 
@@ -94,14 +97,16 @@ module y_carriage()
 	
 }
 
-module Yaxis()
+module Yaxis() 
 {
 	//rails
 	for(i=[0,1])
 	{
 		mirror([i,0,0])
 		{
-			 translate([(tslot_size/2)+10,0,Zheight]) rotate([90,0,0]) linear_rod(8,case_bottom_int_Y);
+			 translate([(tslot_size/2)+10,0,0])
+				rotate([90,0,0])
+					linear_rod(8,case_bottom_int_Y);
 		}
 	}
 	
@@ -109,7 +114,7 @@ module Yaxis()
 	
 	
 	//hotend
-	color(Steel) translate([-12.5,-12.5,113.6]) import("E3D_Hot_end.stl");
+	color(Steel) translate([-12.5,-12.5,-60]) import("E3D_Hot_end.stl");
 }
 
 module Zaxis()
@@ -126,9 +131,9 @@ module Zaxis()
 			translate([-(lookup(NemaSideSize, Nema17)/2)-10,(case_bottom_int_Y/2)-(lookup(NemaSideSize, Nema17)/2),tslot_size])
 			{
 				motor(model=Nema17,orientation=[0,180,0], pos=[0,0,lookup(NemaLengthMedium, Nema17)+lookup(NemaRoundExtrusionHeight, Nema17)]);
-				//threaded rod for Z movement
-				translate([0,0,(Zheight/2)+58])
-					linear_rod(diameter=5, length=Zheight);
+				//threaded rod for Z movement, placed above stepper
+				translate([0,0,(Zheight+(lookup(NemaLengthMedium, Nema17)+lookup(NemaFrontAxleLength, Nema17)))/2+1])
+					linear_rod(diameter=5, length=Zheight-(lookup(NemaLengthMedium, Nema17)+lookup(NemaFrontAxleLength, Nema17))-1);
 			}
 		}
 	}
@@ -179,22 +184,31 @@ module draw() /****** built from the bottom up *******/
 	 */
 	
 	//some if's to set hinge open vars
-	flipit  = hinge_open ? 90 : 0;
+	flipit  = hinge_open ? 85 : 0;
 	raiseit = hinge_open ? tslot_size+(tslot_size/2) : 0;
 	
 	echosize("gap between A4 print area and tslot",(case_bottom_int_Y/2)-(A4_width/2)-tslot_size);
 	
 	translate([Yaxis_X_position,0,raiseit])
 	{
-		/************* bed *************/
-		translate([bed_X_shift,0,3/2+case_bottom_ext_Z+10-raiseit])
+		/************* bed *************/	
+		translate([	bed_X_shift,
+					0,
+					(case_bottom_ext_Z
+						-((case_bottom_ext_Z-case_bottom_int_Z)
+						+bed_base_height)
+						+(3/2))
+						-raiseit
+						+10]) //x carriage height
 			color("Red")
 				a4Bed(padding=0, heated_bed_height=3);
 				
 		rotate([0,flipit,0])
 		{
 			/********* Y axis **********/
-			Yaxis();
+			translate([0,0,Yaxis_Z_position])
+				Yaxis();
+			echosize("Print height is",Zheight-Yaxis_Z_position);
 			
 			/********* Z axis *********/
 			Zaxis();
@@ -211,10 +225,12 @@ module draw() /****** built from the bottom up *******/
 	
 	/************* suitcase *************/
 	echosize("briefcase X Y Z",str(caseX,"x",caseY,"x",caseZ));
-	$color([0,1,0]) translate([-230,-165,-20]) briefcase();
+	color([0,1,0])
+		translate([0,0,(case_bottom_ext_Z/2)-bed_base_height-(case_bottom_ext_Z-case_bottom_int_Z)])
+			$briefcase();
 	
 	/************* height markers *************/
-	translate([-230,0,0])
+	translate([-230,0,-bed_base_height-(case_bottom_ext_Z-case_bottom_int_Z)])
 	{
 		%translate([0,0,case_bottom_ext_Z-0.5])
 			cube(size=[10,300,1], center=true); //lip of bottom part
