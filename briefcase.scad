@@ -8,7 +8,7 @@
 include <MCAD/materials.scad>
 
 caseX = 460;
-caseY = 330;
+caseY = 335;
 caseZ = 160;
 
 case_lid_ext_Z = 60;
@@ -17,11 +17,21 @@ case_lid_int_X  = caseX - (case_lid_wall_thickness * 2);
 case_lid_int_Y  = caseY - (case_lid_wall_thickness * 2);
 case_lid_int_Z = 54.0;
 
-case_bottom_ext_Z = 100;
-case_bottom_wall_thickness = 11.0;
+case_bottom_ext_Z = 97;
+case_bottom_wall_thickness = 11.0-1.5;
 case_bottom_int_X  = caseX - (case_bottom_wall_thickness * 2);
 case_bottom_int_Y  = caseY - (case_bottom_wall_thickness * 2);
-case_bottom_int_Z = 96.5;
+case_bottom_int_Z = 89;
+
+function caseX() = caseX;
+function caseY() = caseY;
+function caseZ() = caseZ;
+function case_bottom_ext_Z() = case_bottom_ext_Z;
+function case_bottom_int_X() = case_bottom_int_X;
+function case_bottom_int_Y() = case_bottom_int_Y;
+function case_bottom_int_Z() = case_bottom_int_Z;
+function case_lid_ext_Z() = case_lid_ext_Z;
+function case_lid_int_Z() = case_lid_int_Z;
 
 module briefcase()
 {
