@@ -1,5 +1,5 @@
 /*
- * Model of a SKXX round rod linear slide supprt
+ * Model of a SKXX round rod linear slide support
  * 
  * 
  * This object is for display only. it is not printable (base and top need to be made to overlap)
