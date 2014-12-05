@@ -10,6 +10,8 @@ use <tslot.scad>
 use <hinge.scad>
 use <LM__UU.scad>
 use <LM__UUOP.scad>
+use <SRSSBP.scad>
+use <z_carriage.scad>
 
 /*
  * functions i should remember to use
@@ -37,19 +39,22 @@ tslot_size = 30; // we're going to use 30mm tslot
 Zheight = 240; //max height of Z axis
 
 Yaxis_X_position = -80;
-Yaxis_Z_position = 110;
+Yaxis_Z_position = 110; //110 = Z0, maxZ = 228. build height in Z is 228-110 = 118mm
 Yaxis_seperation = 56;
+Yaxis_position = 105; //-105 for non-motor end, 105 for motorend
 
 hinge_open = 0;
+hinge_close_angle = 83; // Z axis must be at max height
+
 moveBed = 0;
 bedleftright = 1; // 0 = left
 bed_X_shift = moveBed ? (bedleftright ? -A4_length/2 : A4_length/2) : 0;
 
 nema17SideSize = lookup(NemaSideSize, Nema17); 
 brace_wall_thickness = 3;
-brace_width = 50;
+brace_width = 30;
 
-
+echosize("Print height is",110-228);
 
 /*************************** modules *****************************/ 
 module echosize(name, size)
@@ -90,6 +95,9 @@ module linear_rod(diameter, length)
 
 module brace(brace_wall_thickness, brace_width)
 {
+	echosize("brace height accross Y", brace_width+5);
+	echosize("brace width on vertical bits", nema17SideSize+brace_width);
+	
 	/*  build half and get it mirrored. cos we lazy yo  */
 	
 	//bottom bit
@@ -98,7 +106,7 @@ module brace(brace_wall_thickness, brace_width)
 				brace_wall_thickness], 
 				center=true);
 				
-	//side bit to the sky
+	//side bit that goes vertically to the sky
 	translate([0, (-nema17SideSize-brace_wall_thickness)/2, (Zheight/2)-brace_wall_thickness/2])
 		cube(size=[	nema17SideSize+brace_width,
 					brace_wall_thickness,
@@ -106,10 +114,12 @@ module brace(brace_wall_thickness, brace_width)
 					center=true);
 					
 	//bracing
-	translate([brace_wall_thickness/2-(nema17SideSize+brace_width)/2-brace_wall_thickness, (case_bottom_int_Y()/4)-(nema17SideSize/2)-3, Zheight-(brace_wall_thickness/2)-(nema17SideSize+brace_width)/2])
+	translate([	brace_wall_thickness/2-(nema17SideSize+brace_width)/2-brace_wall_thickness,
+				(case_bottom_int_Y()/4)-(nema17SideSize/2)-3,
+				Zheight-(brace_wall_thickness/2)-(brace_width)/2-5/2])
 		cube(size=[	brace_wall_thickness,
 					case_bottom_int_Y()/2+0.1,
-					nema17SideSize+brace_width], 
+					brace_width+5], // i added 5 to give more girth to the bracing. its a bit cheaty cheaty re parametric design
 					center=true);
 }
 
@@ -123,6 +133,8 @@ module x_carriage()
 module y_carriage()
 {
 	echosize("Y carriage length", 10);
+	
+	
 	for(i=[1,-1])
 	{
 		difference()
@@ -140,133 +152,6 @@ module y_carriage()
 	translate([0,0,LM8_dia()/2+3]) cube(size=[Yaxis_seperation+LM8_dia(),50,3], center=true);
 	
 	
-}
-
-module z_carriage()
-{
-	carriage_width = LM8_dia()+6; //3mm walls
-	bearing_gap = 10;
-	carriage_height = LM8_length() + bearing_gap + LM8OP_length() + 5;
-	
-	echosize("Z carriage height", carriage_height);
-	echosize("Z carriage width", carriage_width);
-	echosize("Length for M3 Bolts for Y axis rod clams", 40);
-	
-	//bearings
-	color(Steel)
-	{
-		translate([0,0,-(LM8_length()/2)-(bearing_gap/2)])
-		{
-			LM(8);
-			translate([0,0, LM8_length()+bearing_gap]) LM(8);
-		}
-	}
-	
-	union()
-	{
-		//main vertical body of the carriage for the bearings
-		difference()
-		{
-			hull()
-			{
-				//bulk for use as anchor for x axis holders
-				translate([0,-carriage_width/2-1,0])
-					cube(size=[carriage_width,carriage_width/3,carriage_height], center=true);
-				
-				//bearing holder
-				cylinder(d=carriage_width, h=carriage_height, center=true);
-			}
-			
-			//space for bearings
-			translate([0,0,-0.5])
-				cylinder(d=LM8_dia()+0.2, h=102, center=true);
-			
-			//cut out for bearing holder
-			translate([0,carriage_width/1.7,0])
-				rotate([0,0,45])
-					cube(size=[carriage_width,carriage_width,105], center=true);
-		}
-		
-		//captive inserts for the bearings
-		translate([0,((LM8_dia()*0.2)/2)-(LM8_dia()/2)-0.5,0])
-		{
-			translate([0,0,(carriage_height/2)-(2.3/2)])
-				cube(size=[carriage_width/1.5,LM8_dia()*0.2,2.3], center=true);
-			for(i=[0,1])
-			{
-				mirror([0,0,i])
-				{
-					translate([0,0,-0.2-(2.3/2)+bearing_gap/2])
-						cube(size=[carriage_width/1.5,LM8_dia()*0.2,2.3], center=true);
-				}
-			}
-			translate([0,0,-(carriage_height/2)+(2.3/2)])
-				cube(size=[carriage_width/1.5,LM8_dia()*0.2,2.3], center=true);
-		}
-		
-		//bridge to join Y axis rod holders
-		translate([0,-(carriage_width/3)-(carriage_width/6+1),carriage_width])
-			cube(size=[carriage_width*1.66,carriage_width/3,carriage_width], center=true);
-		
-		//Y axis rod holders
-		for(i=[0,1]) 
-		{
-			mirror([i,0,0])
-			{
-				translate([Yaxis_seperation/2,-carriage_width/14-1,carriage_width])
-				{
-					difference()
-					{
-						//main block
-						translate([0,0,-carriage_width/6])
-							linear_extrude(height=carriage_width/1.5) roundedSquare(pos=[carriage_width+4,carriage_width+4],r=2);
-						
-						//some stuff to exclude bits around where the carriage will move
-						translate([5.14,-6,5.05]) cube(size=[8,20,10], center=size);
-						translate([-13.14,-6,5.05]) cube(size=[8,20,10], center=size);
-						translate([-5,-6,8.246]) cube(size=[10,20,10], center=size);
-						
-						//where the rods sit
-						translate([0,0,carriage_width/2])
-							rotate([90,0,0])
-								linear_rod(diameter=8, length=40);
-								
-						//where the bearings+carriage on top will go
-						translate([0,6,carriage_width/2])
-							rotate([90,0,0])
-								LMOP_oversize(8);
-						
-						for(j=[1,-1])
-							translate([9*j,-carriage_width/2+1.2,23]) rotate([0,180,0]) bolt(3,40);
-					}
-					
-					//clampy bits for the Y axis rod
-					difference()
-					{
-						translate([0,-carriage_width/2+1,31/2-(9.8/2)])
-						{
-							//cube(size=[carriage_width+4,6,9.8], center=true);
-							linear_extrude(height=9.8) roundedSquare(pos=[carriage_width+4,6],r=2);
-						}
-						translate([0,-carriage_width/2+1,31/2-5])
-								rotate([90,0,0])
-									linear_rod(diameter=8, length=40);
-						
-						for(j=[1,-1])
-							translate([9*j,-carriage_width/2+1.2,23]) rotate([0,180,0]) bolt(3,40);
-					}
-					
-					for(j=[1,-1])
-							color(Steel) translate([9*j,-carriage_width/2+1.2,23]) rotate([0,180,0]) bolt(3,40);
-				}
-			}
-		}
-		
-		
-		
-		//link to Z axis threaded rod
-		
-	}
 }
 
 module Xaxis()
@@ -298,46 +183,59 @@ module Xaxis()
 	x_carriage();
 }
 
-module Yaxis() 
+module Yaxis(Yaxis_Z_position) 
 {
-	//rails
 	echosize("Y axis rod diameter", 8);
 	echosize("Y axis rail seperation", 56);
 	echosize("Y axis length", case_bottom_int_Y()-10);
 	
-	Yaxis_position = 105; //-105 for non-motor end, 105 for motorend
-	
-	for(i=[0,1])
+	//rails
+	translate([0,0,Yaxis_Z_position])
 	{
-		mirror([i,0,0])
+		for(i=[0,1])
 		{
-			translate([Yaxis_seperation/2,0,0]) //mendel90 uses 56mm width for rails
+			mirror([i,0,0])
 			{
-				rotate([90,0,0])
-					linear_rod(8,case_bottom_int_Y()-8); //1mm clearance to the bracing
+				translate([Yaxis_seperation/2,0,0]) //mendel90 uses 56mm width for rails
+				{
+					rotate([90,0,0])
+						linear_rod(8,case_bottom_int_Y()-8); //1mm clearance to the bracing
+				}
 			}
+		}
+		
+		//carriage
+		translate([0,Yaxis_position,0])
+		{
+			y_carriage();
+			//hotend
+			color(Steel) translate([-12.5,-12.5,-10.5]) import("E3D_Hot_end.stl");
 		}
 	}
 	
-	//carriage
-	translate([0,Yaxis_position,0])
+	translate([0,case_bottom_int_Y()/2-brace_wall_thickness-nema17SideSize/2-11,tslot_size+(brace_wall_thickness/2)])
 	{
-		y_carriage();
-		//hotend
-		color(Steel) translate([-12.5,-12.5,-10.5]) import("E3D_Hot_end.stl");
+		
+		motor(model=Nema17,orientation=[0,180,0], pos=[0,0,lookup(NemaLengthMedium, Nema17)+lookup(NemaRoundExtrusionHeight, Nema17)]);
+		//motor(model=Nema14,orientation=[0,180,0], pos=[0,0,lookup(NemaLengthMedium, Nema14)+lookup(NemaRoundExtrusionHeight, Nema14)]);
 	}
-
-	/*
-	rotate([0,90,0])
-		translate([-nema17SideSize/2,135,-nema17SideSize*2])
-			rotate([0,0,45])
-				motor(model=Nema17,orientation=[0,180,0], pos=[0,0,lookup(NemaLengthMedium, Nema17)+lookup(NemaRoundExtrusionHeight, Nema17)]);
-	*/
 }
 
 module Zaxis()
-{
+{	
+	//echosize("Z carriage height", carriage_height);
+	//echosize("Z carriage width", carriage_width);
+	//echosize("Length for M3 Bolts for Y axis rod clams", 40);
+	
+	echosize("Z smooth rod", Zheight-6);
+	echosize("Z screw rod",  z_screw_rod_length);
+	
+	z_screw_rod_length = 140;
+	
 	// in this layout the central smooth rod will be the centreline for the z axis
+	
+	//we need to mirror cos i was lazy with the bracing and it makes sense that the Z will be symmetrical. 
+	//i am sure i will regret this decision and have to rewrite this part soon
 	for(i=[0,1])
 	{
 		mirror([0,i,0])
@@ -349,48 +247,49 @@ module Zaxis()
 					//bracking for Y/Z
 					color("blue") brace(brace_wall_thickness, brace_width);
 					
-					translate([-((nema17SideSize+brace_width)/2)+(nema17SideSize/2),0,brace_wall_thickness/2])
+					translate([-((nema17SideSize+brace_width)/2)+(nema17SideSize/2)-nema17SideSize/2,0,brace_wall_thickness/2])
 					{
-						// +stepper
+						// stepper
 						motor(model=Nema17,orientation=[0,180,0], pos=[0,0,lookup(NemaLengthMedium, Nema17)+lookup(NemaRoundExtrusionHeight, Nema17)]);
 						
-						/* +screw rod
+						/*  ///// screw rod //////
 						 * 
 						 * M8 screw rod isnt 8mm in diameter
 						 * specs say major diameter is 7.76(min) and 7.97(max). so we're going with 7.8
 						 */
-						translate([0,0,(Zheight+(lookup(NemaLengthMedium, Nema17)+lookup(NemaFrontAxleLength, Nema17)))/2+1.7])
-							linear_rod(diameter=7.8, length=Zheight-(lookup(NemaLengthMedium, Nema17)+lookup(NemaFrontAxleLength, Nema17))-1);
+						translate([0,0,(z_screw_rod_length/2+(lookup(NemaLengthMedium, Nema17)+lookup(NemaFrontAxleLength, Nema17)))+2.1])
+							linear_rod(diameter=7.8, length=z_screw_rod_length);
 						
 						//z-motor-threaded-rod coupler
 						color("green")
-						translate([0,0,58.1])
-							rotate([0,-90,45])
-								for(j=[0,1])
-								{
-									mirror([0,0,j]) translate([0,0,-8])import("z_coupling.stl");
-								}
+							translate([0,0,58.1])
+								rotate([0,-90,45])
+									for(j=[0,1])
+									{
+										mirror([0,0,j]) translate([0,0,-8])import("z_coupling.stl");
+									}
 					}
-				}
-				
-				// smooth rod for Z
-				translate([0,-5,brace_wall_thickness/2+Zheight/2])
-				{
-					linear_rod(diameter=8, length=Zheight);
 				}
 			}
 		}
 	}
 	
-	//z carriage for non-motor end
-	translate([0,-case_bottom_int_Y()/2+(nema17SideSize/2+brace_wall_thickness),tslot_size+(brace_wall_thickness/2)])
-		translate([0,-5,brace_wall_thickness/20+Yaxis_Z_position/2-8.2])
-			z_carriage();
-			
-	//z carriage for motor end
-	translate([0,-case_bottom_int_Y()/2+(nema17SideSize/2+brace_wall_thickness),tslot_size+(brace_wall_thickness/2)])
-		translate([0,case_bottom_int_Y()-43.2,brace_wall_thickness/20+Yaxis_Z_position/2-8.2])
-			rotate([0,0,180]) z_carriage();
+	// smooth rod for idle Z end and idle z_carriage
+	translate([0,-case_bottom_int_Y()/2+(nema17SideSize/2+brace_wall_thickness)-5,0])
+	{
+		translate([0,0,tslot_size+brace_wall_thickness+Zheight/2])
+			linear_rod(diameter=8, length=Zheight-6);
+		translate([0,0,Yaxis_Z_position+17.5])
+			z_carriage(LM8_dia(), LM8_length(), Yaxis_seperation);
+		
+	}
+	
+	// ball spline for the Ymotor end + z_carriage
+	translate([0,case_bottom_int_Y()/2-(nema17SideSize/2-brace_wall_thickness)+5,0])
+	{
+		translate([0,0,tslot_size+brace_wall_thickness+lookup(NemaLengthMedium, Nema17)+198/2])
+			SRSSBP_rod(10, 198);
+	}
 }
 
 module draw() /****** built from the bottom up *******/
@@ -408,8 +307,8 @@ module draw() /****** built from the bottom up *******/
 	 */
 	
 	//some if's to set hinge open/closed params
-	flipit  = hinge_open ? 85 : 0;
-	raiseit = hinge_open ? tslot_size+(tslot_size/2) : 0;
+	flipit  = hinge_open ? hinge_close_angle : 0; //the angle of folding
+	raiseit = hinge_open ? tslot_size+(tslot_size/2) : 0; // THIS DOES NOTHING
 	
 	echosize("gap between A4 print area and tslot",(case_bottom_int_Y()/2)-(A4_width/2)-tslot_size);
 	
@@ -430,9 +329,7 @@ module draw() /****** built from the bottom up *******/
 		rotate([0,flipit,0])
 		{
 			/********* Y axis **********/
-			translate([0,0,Yaxis_Z_position])
-				Yaxis();
-			echosize("Print height is",Zheight-Yaxis_Z_position);
+			Yaxis(Yaxis_Z_position);
 			
 			/********* Z axis *********/
 			Zaxis();
@@ -442,16 +339,16 @@ module draw() /****** built from the bottom up *******/
 	}
 	
 	/********* X axis *************/
-	Xaxis();
+	*Xaxis();
 	
 	/**** base for the whole machine - will sit inside the suitcase ****/
-	translate([0,0,-bed_base_height]) base();
+	*translate([0,0,-bed_base_height]) base();
 	
 	/************* suitcase *************/
 	echosize("briefcase X Y Z",str(caseX(),"x",caseY(),"x",caseZ()));
-	color([0,1,0])
+	*color([0,1,0])
 		translate([0,0,(case_bottom_ext_Z()/2)-bed_base_height-(case_bottom_ext_Z()-case_bottom_int_Z())])
-			$briefcase();
+			briefcase();
 	
 	/************* height markers *************/
 	translate([-230,0,-bed_base_height-(case_bottom_ext_Z()-case_bottom_int_Z())])
@@ -466,5 +363,3 @@ module draw() /****** built from the bottom up *******/
 }
 
 draw();
-//z_carriage();
-//y_carriage();
