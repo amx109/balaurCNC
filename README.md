@@ -129,6 +129,9 @@ http://www.lmbearings.com/index.php?p=linear-guides
 
 http://www.wmh-trans.co.uk/Products/HIWIN_LINEAR_GUIDE_RAILS_EGR15
 
+### spline ball + shaft
+http://www.reliance.co.uk/shop/products.php?10282&cPath=656_657_658 - 57.32 GBP
+
 #### Beam Deflection Calculations
 
 from http://www.engineersedge.com/beam-deflection-menu.htm
