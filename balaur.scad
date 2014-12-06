@@ -81,7 +81,7 @@ module draw() /****** built from the bottom up *******/
 	translate([Yaxis_X_position,0,raiseit])
 	{
 		/************* bed *************/
-		translate([	bed_X_shift,
+		*translate([	bed_X_shift,
 					0,
 					(case_bottom_ext_Z()
 						-((case_bottom_ext_Z()-case_bottom_int_Z())
@@ -89,7 +89,7 @@ module draw() /****** built from the bottom up *******/
 						+(3/2)) //heated_bed_height
 						-raiseit
 						+10]) //x carriage height
-			color("Red")
+			color("LightCoral")
 				a4Bed(padding=0, heated_bed_height=3);
 		
 		rotate([0,flipit,0])
@@ -105,10 +105,11 @@ module draw() /****** built from the bottom up *******/
 	}
 	
 	/********* X axis *************/
-	Xaxis();
+	*Xaxis();
 	
 	/**** base for the whole machine - will sit inside the suitcase ****/
-	translate([0,0,-bed_base_height]) base();
+	*translate([0,0,-bed_base_height])
+		base();
 	
 	/************* suitcase *************/
 	echosize("briefcase X Y Z",str(caseX(),"x",caseY(),"x",caseZ()));
@@ -187,9 +188,9 @@ module Yaxis(Yaxis_Z_position)
 		}
 	}
 	
+	//motor that connects to the spline
 	translate([0,case_bottom_int_Y()/2-brace_wall_thickness-nema17SideSize/2-11,tslot_size+(brace_wall_thickness/2)])
 	{
-		
 		motor(model=Nema17,orientation=[0,180,0], pos=[0,0,lookup(NemaLengthMedium, Nema17)+lookup(NemaRoundExtrusionHeight, Nema17)]);
 		//motor(model=Nema14,orientation=[0,180,0], pos=[0,0,lookup(NemaLengthMedium, Nema14)+lookup(NemaRoundExtrusionHeight, Nema14)]);
 	}
@@ -210,46 +211,43 @@ module Zaxis()
 	
 	//we need to mirror cos i was lazy with the bracing and it makes sense that the Z will be symmetrical. 
 	//i am sure i will regret this decision and have to rewrite this part soon
-	for(i=[0,1])
+	*for(i=[0,1])
 	{
 		mirror([0,i,0])
 		{
-			translate([0,-case_bottom_int_Y()/2+(nema17SideSize/2+brace_wall_thickness),tslot_size+(brace_wall_thickness/2)])
+			translate([-brace_width*2/3,-case_bottom_int_Y()/2+(nema17SideSize/2+brace_wall_thickness),tslot_size+(brace_wall_thickness/2)])
 			{
-				translate([-brace_width*2/3,0,0])
+				//bracking for Y/Z
+				color("SteelBlue") brace(brace_wall_thickness, brace_width);
+				
+				translate([-((nema17SideSize+brace_width)/2)+(nema17SideSize/2)-nema17SideSize/2,0,brace_wall_thickness/2])
 				{
-					//bracking for Y/Z
-					color("blue") brace(brace_wall_thickness, brace_width);
+					// stepper
+					motor(model=Nema17,orientation=[0,180,0], pos=[0,0,lookup(NemaLengthMedium, Nema17)+lookup(NemaRoundExtrusionHeight, Nema17)]);
 					
-					translate([-((nema17SideSize+brace_width)/2)+(nema17SideSize/2)-nema17SideSize/2,0,brace_wall_thickness/2])
-					{
-						// stepper
-						motor(model=Nema17,orientation=[0,180,0], pos=[0,0,lookup(NemaLengthMedium, Nema17)+lookup(NemaRoundExtrusionHeight, Nema17)]);
-						
-						/*  ///// screw rod //////
-						 * 
-						 * M8 screw rod isnt 8mm in diameter
-						 * specs say major diameter is 7.76(min) and 7.97(max). so we're going with 7.8
-						 */
-						translate([0,0,(z_screw_rod_length/2+(lookup(NemaLengthMedium, Nema17)+lookup(NemaFrontAxleLength, Nema17)))+2.1])
-							linear_rod(diameter=7.8, length=z_screw_rod_length);
-						
-						//z-motor-threaded-rod coupler
-						color("green")
-							translate([0,0,58.1])
-								rotate([0,-90,45])
-									for(j=[0,1])
-									{
-										mirror([0,0,j]) translate([0,0,-8])import("z_coupling.stl");
-									}
-					}
+					/*  ///// screw rod //////
+					 * 
+					 * M8 screw rod isnt 8mm in diameter
+					 * specs say major diameter is 7.76(min) and 7.97(max). so we're going with 7.8
+					 */
+					translate([0,0,(z_screw_rod_length/2+(lookup(NemaLengthMedium, Nema17)+lookup(NemaFrontAxleLength, Nema17)))+2.1])
+						linear_rod(diameter=7.8, length=z_screw_rod_length);
+					
+					//z-motor-threaded-rod coupler
+					color("MediumSeaGreen")
+						translate([0,0,58.1])
+							rotate([0,-90,45])
+								for(j=[0,1])
+								{
+									mirror([0,0,j]) translate([0,0,-8])import("z_coupling.stl");
+								}
 				}
 			}
 		}
 	}
 	
 	// smooth rod for idle Z end and idle z_carriage
-	translate([0,-case_bottom_int_Y()/2+brace_wall_thickness+8/2+12,0])
+	*translate([0,-case_bottom_int_Y()/2+brace_wall_thickness+8/2+12,0])
 	{
 		translate([0,0,tslot_size+brace_wall_thickness+Zheight/2])
 			linear_rod(diameter=8, length=Zheight-6);
@@ -264,12 +262,12 @@ module Zaxis()
 	translate([0,case_bottom_int_Y()/2-brace_wall_thickness-16,0])
 	{
 		translate([0,0,tslot_size+brace_wall_thickness+lookup(NemaLengthMedium, Nema17)+198/2])
-			SRSSBP_rod(10, 198);
+			SRSS_rod(10, 198);
 		echosize("length of spline shaft",198);
 		
 		translate([0,0,Yaxis_Z_position+17.8+1.4])	
 			rotate([0,0,180])
-					z_carriage(SRSSBP10_dia(), SRSSBP10_length(), Yaxis_seperation, spline=true);
+					z_carriage(SRSS__10_dia(), SRSS__10_length(), Yaxis_seperation, spline=true);
 	}
 }
 
@@ -339,11 +337,9 @@ module brace(brace_wall_thickness, brace_width)
 module base()
 {
 	//bottom of the base is z=0
-	color(FiberBoard)
-	{
+	echosize("baseboard",str(case_bottom_int_X(),"x",case_bottom_int_Y(),"x",bed_base_height));
+	color("GhostWhite")
 		linear_extrude(height = bed_base_height) roundedSquare(pos=[case_bottom_int_X(),case_bottom_int_Y()], r=bed_base_height);
-		echosize("baseboard",str(case_bottom_int_X(),"x",case_bottom_int_Y(),"x",bed_base_height));
-	}
 }
 
 module a4Bed(padding, heated_bed_height) //padding in addition to a4 size
