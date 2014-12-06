@@ -25,7 +25,7 @@ module LMOP(size)
 
 module LMOP_oversize(size)
 {
-	if (size == 8)
+	if (size == 15) //then is an LM8
 	{
 		_LM__UUOP(LM8UUOP[0], LM8UUOP[1], LM8UUOP[2], LM8UUOP[3], LM8UUOP[4], LM8UUOP[5], LM8UUOP[6], LM8UUOP[7]-1, LM8UUOP[8]-20);
 	}
