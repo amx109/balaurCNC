@@ -42,7 +42,7 @@ module _LM__UUOP(dr, D, L, B, D1, W, F, E, angle)
 	difference()
 	{
 		//the bearing
-		cylinder(d=D, h=L, center=true);
+		color("Silver") cylinder(d=D, h=L, center=true);
 		cylinder(d=dr, h=L+1, center=true);
 		
 		//the gap in the bearing

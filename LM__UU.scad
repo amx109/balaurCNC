@@ -39,10 +39,13 @@ module LM(size)
 
 module _LM(dr, tolerancedr, D, toleranceD, L, toleranceL, B, toleranceB, D1, W)
 {
-	difference()
+	color("Silver")
 	{
-		cylinder(d=D, h=L, center=true);
-		cylinder(d=dr, h=L+1, center=true);
+		difference()
+		{
+			cylinder(d=D, h=L, center=true);
+			cylinder(d=dr, h=L+1, center=true);
+		}
 	}
 }
 
