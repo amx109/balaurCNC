@@ -129,6 +129,10 @@ http://www.lmbearings.com/index.php?p=linear-guides
 
 http://www.wmh-trans.co.uk/Products/HIWIN_LINEAR_GUIDE_RAILS_EGR15
 
+for LM8 open bearings, here is tubing they will fit in for Y axis
+http://www.ebay.co.uk/itm/3-4-OD-x-15mm-ID-x-300mm-LONG-ALUMINIUM-ROUND-TUBE-GRADE-6082T6-/191409548594?pt=UK_BOI_Metalworking_Milling_Welding_Metalworking_Supplies_ET&hash=item2c90e5ed32
+19.15mm OD x 15mm ID x 300mm LONG
+
 ### spline ball + shaft
 http://www.reliance.co.uk/shop/products.php?10282&cPath=656_657_658 - 57.32 GBP
 
