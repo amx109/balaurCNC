@@ -10,8 +10,9 @@ use <tslot.scad>
 use <hinge.scad>
 use <LM__UU.scad>
 use <LM__UUOP.scad>
-use <SRSSBP.scad>
+use <SRSS__.scad>
 use <z_carriage.scad>
+use <y_carriage.scad>
 
 /*
  * functions i should remember to use
@@ -74,7 +75,7 @@ module draw() /****** built from the bottom up *******/
 	
 	//some if's to set hinge open/closed params
 	flipit  = hinge_open ? hinge_close_angle : 0; //the angle of folding
-	raiseit = hinge_open ? tslot_size+(tslot_size/2) : 0; // THIS DOES NOTHING
+	raiseit = hinge_open ? tslot_size+(tslot_size/2) : 0; 
 	
 	echosize("gap between A4 print area and tslot",(case_bottom_int_Y()/2)-(A4_width/2)-tslot_size);
 	
@@ -95,7 +96,7 @@ module draw() /****** built from the bottom up *******/
 		rotate([0,flipit,0])
 		{
 			/********* Y axis **********/
-			Yaxis(Yaxis_Z_position);
+			Yaxis();
 			
 			/********* Z axis *********/
 			Zaxis();
@@ -158,7 +159,7 @@ module Xaxis()
 	x_carriage();
 }
 
-module Yaxis(Yaxis_Z_position) 
+module Yaxis() 
 {
 	echosize("Y axis rod diameter", 8);
 	echosize("Y axis rail seperation", 56);
@@ -182,7 +183,7 @@ module Yaxis(Yaxis_Z_position)
 		//carriage
 		translate([0,Yaxis_position,0])
 		{
-			y_carriage();
+			y_carriage(Yaxis_seperation);
 			//hotend
 			color("DarkGray") translate([-12.5,-12.5,-10.5]) import("E3D_Hot_end.stl");
 		}
@@ -211,14 +212,14 @@ module Zaxis()
 	
 	//we need to mirror cos i was lazy with the bracing and it makes sense that the Z will be symmetrical. 
 	//i am sure i will regret this decision and have to rewrite this part soon
-	*for(i=[0,1])
+	for(i=[0,1])
 	{
 		mirror([0,i,0])
 		{
 			translate([-brace_width*2/3,-case_bottom_int_Y()/2+(nema17SideSize/2+brace_wall_thickness),tslot_size+(brace_wall_thickness/2)])
 			{
 				//bracking for Y/Z
-				color("SteelBlue") brace(brace_wall_thickness, brace_width);
+				*color("SteelBlue") brace(brace_wall_thickness, brace_width);
 				
 				translate([-((nema17SideSize+brace_width)/2)+(nema17SideSize/2)-nema17SideSize/2,0,brace_wall_thickness/2])
 				{
@@ -255,50 +256,25 @@ module Zaxis()
 		echosize("distance of center axis of smooth rod from inner wall of bracing", 8/2+12);
 		
 		translate([0,0,Yaxis_Z_position+17.8])
-			z_carriage(LM8_dia(), LM8_length(), Yaxis_seperation);
+			z_carriage("idler_end", LM8_dia(), LM8_length(), Yaxis_seperation);
 	}
 	
 	// ball spline for the Ymotor end + z_carriage
 	translate([0,case_bottom_int_Y()/2-brace_wall_thickness-16,0])
 	{
-		translate([0,0,tslot_size+brace_wall_thickness+lookup(NemaLengthMedium, Nema17)+198/2])
+		*translate([0,0,tslot_size+brace_wall_thickness+lookup(NemaLengthMedium, Nema17)+198/2])
 			SRSS_rod(10, 198);
 		echosize("length of spline shaft",198);
 		
 		translate([0,0,Yaxis_Z_position+17.8+1.4])	
 			rotate([0,0,180])
-					z_carriage(SRSS__10_dia(), SRSS__10_length(), Yaxis_seperation, spline=true);
+					z_carriage("motor_end", SRSS__10_dia(), SRSS__10_length(), Yaxis_seperation, spline=true);
 	}
 }
 
 /*** thing carrying the bed ***/
 module x_carriage()
 {
-	
-}
-
-/** thing carrying the 'head' along Y ****/
-module y_carriage()
-{
-	echosize("Y carriage length", 10);
-	
-	
-	for(i=[1,-1])
-	{
-		difference()
-		{
-			translate([i*Yaxis_seperation/2,0,0]) rotate([90,0,0]) cylinder(h=LM8OP_length()*3+12, d=LM8OP_dia()+4.15, center=true);
-			translate([i*Yaxis_seperation/2,0.1,0]) rotate([90,0,0]) cylinder(h=LM8OP_length()*3+13, d=LM8OP_dia(), center=true);
-			translate([0,0,-8]) cube(size=[Yaxis_seperation+LM8_dia()*2,LM8OP_length()*3+20,10], center=true);
-		}
-		for(j=[1,-1])
-		{
-			translate([i*(Yaxis_seperation/2),j*(LM8OP_length()+6),0]) rotate([90,0,0]) LMOP(8);
-		}
-	}
-	
-	translate([0,0,LM8_dia()/2+3]) cube(size=[Yaxis_seperation+LM8_dia(),50,3], center=true);
-	
 	
 }
 
