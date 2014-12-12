@@ -117,7 +117,7 @@ total = 75.18
 OR
 
 kit (with 4x sc20) = 68 gbp - http://www.ebay.co.uk/itm/x2-20mm-Rails-500mm-x4-SK20-x4-SC20UU-CNC-Axis-Custom-3d-Printer-/221440004481?pt=UK_BOI_Metalworking_Milling_Welding_Metalworking_Supplies_ET&hash=item338eda5181
-
+8mm hardened high carbon rods with h6 tolerance as required by the linear bearings.
 ### linear slide + bearings
 all items from hinwin.com and http://www.ebay.co.uk/itm/EGR-15-20-25mm-1m-Linear-Motion-Carriage-Guide-Rail-Slide-Block-Flange-Block-/400704914081?pt=LH_DefaultDomain_3&var=&hash=item5d4bdfc2a1
 
@@ -145,7 +145,7 @@ http://www.engineersedge.com/beam_bending/calculators_protected/beam_deflection_
 ### belts
 
 choose gt2 - http://forums.reprap.org/read.php?14,419336
-
+Brecoflex?
 ## hinged X axis
 
 ### hinge
@@ -177,3 +177,11 @@ http://www.openbuilds.com/threads/new-build-5-controller-cam-options-your-opinio
 
 30mm t-slot alu extrusion 2N 90		- £7.97 per m - http://www.valuframe.co.uk/Series-8X30-Aluminium-Profiles.html
 20mm x 40mm v-slot alu extrusion	- £8.13 per m
+
+#print quality
+I have come to realise that you get better prints if you do the outlines at the same speed as the infill and looking back I think that is what I have seen commercial machines do
+http://hydraraptor.blogspot.co.uk/2013/10/mendel90-design-improvements.html
+http://www.thingiverse.com/thing:31234
+
+#calculations
+http://forums.reprap.org/read.php?160,330608,330819#msg-330819 - motor torque/distanced travelled
