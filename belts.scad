@@ -26,9 +26,9 @@ module belt(type, x1, y1, r1, x2, y2, r2, gap = 0) {
     dy = y2 - y1;
 
     length = round((pi * (r1 + r2 + thickness) + 2 * sqrt(dx * dx + dy * dy) - gap) / pitch) * pitch;
-    vitamin(str("BT", belt_pitch(type) * 10,width, round(length), ": Belt T", belt_pitch(type)," x ", width, "mm x ", round(length), "mm"));
+    //vitamin(str("BT", belt_pitch(type) * 10,width, round(length), ": Belt T", belt_pitch(type)," x ", width, "mm x ", round(length), "mm"));
 
-    color(belt_color)
+    color("white")
     linear_extrude(height = width, center = true, convexity = 6) {
         difference() {
             hull() {                                                    // outside of belt
@@ -53,7 +53,7 @@ module twisted_belt(type, x1, y1, r1, x2, y2, r2, gap = 0) {
 
     angle = atan2(dy, dx) - atan2((r2 - r1), dx);
 
-    color(belt_color)
+    color("white")
     union() {
         difference() {
             belt(type, x1, y1, r1, x2, y2, r2, gap);
@@ -71,3 +71,13 @@ module twisted_belt(type, x1, y1, r1, x2, y2, r2, gap = 0) {
 
 //twisted_belt(T5x6, 10, 11-4.87, 4.87, 200, 20, 11);
 //twisted_belt(T5x6,  -374, -1.55, 6.5, 0, 0, 4.95);
+
+belt(GT2, 20, 105, 9.68, -20, -105, 9.68, gap=200);
+//gimme_belt("GT2", 20, 105, 9.68, -20, -105, 9.68, gap=50);
+
+
+module gimme_belt(type, x1, y1, r1, x2, y2, r2, gap)
+{
+	if(type=="GT2")
+		belt(GT2, x1, y1, r1, x2, y2, r2, gap);
+}
