@@ -13,9 +13,15 @@ use <springs.scad>
 
 $fn=50;
 
+SRSS__3 = [3.18, 9.53, 12.7, 2.41, (3/8)*25.4, 24, 6.35];
 SRSS__6 = [6.35, 12.70, 19.1, 5.13, (7/16)*25.4, 20, 6.35];
 SRSS__10 = [9.53, 15.88, 25.4, 7.77, (9/16)*25.4, 20, 9.53]; // 9⁄16 inch: 0.5625inch \ 14.2875mm
 
+
+function SRSS__3_length() = SRSS__3[2];
+function SRSS__3_dia() = SRSS__3[1];
+function SRSS__6_length() = SRSS__6[2];
+function SRSS__6_dia() = SRSS__6[1];
 function SRSS__10_length() = SRSS__10[2];
 function SRSS__10_dia() = SRSS__10[1];
 
@@ -57,6 +63,10 @@ module SRSSZP(size)
 
 module SRSSZY(size)
 {
+	if (size == 3)
+	{
+		_SRSSZY(SRSS__3[0], SRSS__3[1], SRSS__3[2], SRSS__3[3], SRSS__3[4], SRSS__3[5], SRSS__3[6]);
+	}
 	if (size == 6)
 	{
 		_SRSSZY(SRSS__6[0], SRSS__6[1], SRSS__6[2], SRSS__6[3], SRSS__6[4], SRSS__6[5], SRSS__6[6]);
@@ -218,6 +228,10 @@ module _SRSSZY(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, th
 
 module SRSS_rod(size, length)
 {
+	if (size == 3)
+	{
+		color("DimGray", 1) _SRSS_rod(SRSS__3[0], length);
+	}
 	if (size == 6)
 	{
 		color("DimGray", 1) _SRSS_rod(SRSS__6[0], length);
