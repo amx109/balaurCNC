@@ -1,16 +1,16 @@
-use <SRSSBP.scad>
+use <SRSS__.scad>
 use <LM__UU.scad>
 use <LM__UUOP.scad>
 use <MCAD/2Dshapes.scad>
-use <MCAD/metric_fastners.scad>
-
+use <pullies.scad>
+use <ironmongery.scad>
 /***
  * 
- *  Set this variable to true if you want a model that you can print.
+ *  Set this variable to false if you want a model that you can display.
  *  otherwise it will show the carriage in display format
  * 
  */
-print = false;
+display = 1;
 
 $fn=100;
 
@@ -19,82 +19,97 @@ wall_thickness = 3;
 rod_dia = 8;
 rear_carriage_depth = 15; //measured from the axial centre of the smooth rod - hardwired to 21 in balaurCNC design - gives 1mm gap to bracing
 
-*translate([0,print? -32 : -50, print? -1.4 : 0]) z_carriage(LM8_dia(), LM8_length(), 56);
-z_carriage(SRSS__10_dia(), SRSS__10_length(), 56, spline=true);
+translate([display? -50 : 0,display? -50 : -32, 0]) z_carriage(LM8_dia(), LM8_length(), 56);
+z_carriage(LM8_dia(), LM8_length(), 56, motor_end=true);
 
-module z_carriage(bearing_dia, bearing_length, Yaxis_seperation, spline=false)
+module z_carriage(bearing_dia, bearing_length, Yaxis_seperation, motor_end=false)
 {
 	carriage_height = bearing_length*2 + bearing_gap + wall_thickness*2;
 	carriage_width = bearing_dia + wall_thickness*2;
 	
+	Yaxis_pulley_offsetZ = 7;
+	
+	echo(carriage_height);
+	
 	union()
 	{
-		
-		color("MediumSeaGreen") bearing_holder(carriage_width, carriage_height, bearing_dia, spline=spline?1:0);
-		bearing_captive_inserts(bearing_dia, bearing_length, spline=spline?1:0, show_bearings = print?0:1);
-		
-		
-		for(i=[0,1]) 
+		difference()
 		{
-			mirror([i,0,0])
+			//bearing holder + inserts
+			union()
+			{
+				color("MediumSeaGreen") bearing_holder(carriage_width, carriage_height, bearing_dia);
+				bearing_captive_inserts(bearing_dia, bearing_length, show_bearings = display?1:0);
+			}
+			
+			if(motor_end)
+			{
+				translate([14,-9,0])
+				{
+					translate([0,0, Yaxis_pulley_offsetZ+1+SRSS__3_length()]) cylinder(d=SRSS__3_dia()+2, h=SRSS__3_length()+2, $fn=50, center=true); //srss
+					translate([0,0, Yaxis_pulley_offsetZ]) cylinder(d=13+1, h=15+2, $fn=50, center=true); //GT2_16
+				} 
+			}
+			
+			//translate([0,0,29]) cube(size=[30,40,50], center=true); //allows me to check bearing holder cross section
+		}
+		
+		difference() //need to make those bolt holes somehow..
+		{
+			union()
 			{
 				//Y axis rod holders
-				translate([Yaxis_seperation/2,0,-carriage_height/2])
+				for(i=[0,1]) 
 				{
-					rail_holders(LM8OP_dia(), LM8OP_length(), Yaxis_seperation);
-				}
-				
-				//big big fillet. mega fillet
-				color("MediumSeaGreen")
-				difference()
-				{
-					union()
+					mirror([i,0,0])
 					{
-						translate([Yaxis_seperation/10+carriage_width/2-0.1, 0,0])
+						translate([Yaxis_seperation/2,0,-carriage_height/2])
 						{
-							//vertical fillet
-							difference()
-							{
-								//width of fillet should be muliple of yaxis_sep, yet distance from origin should relate to carriage width
-								translate([	0,
-											(spline?carriage_width/1.26 : carriage_width/1.21)/2-rear_carriage_depth,
-											-carriage_height/4])
-									cube(size=[	Yaxis_seperation/5,
-												spline?carriage_width/1.26 : carriage_width/1.21,
-												carriage_height/2], 
-												center=true);
-								
-								translate([(spline?carriage_height*1.25 : carriage_height*1.1)/2-Yaxis_seperation/10,0,0])
-									rotate([90,0,0])
-										cylinder(h=40, d=spline?carriage_height*1.25 : carriage_height*1.1, center=true, $fn=100);
-							}
-						}
-						
-						//side fillet
-						translate([	(Yaxis_seperation/2-(Yaxis_seperation/2.5)/2-carriage_width/2)/2+carriage_width/2, 
-									(rear_carriage_depth+bearing_dia/4)/2-rear_carriage_depth, 
-									carriage_height/18-carriage_height/2])
-						{
-							cube(size=[(Yaxis_seperation/2-(Yaxis_seperation/2.5)/2-carriage_width/2)+0.2,
-										rear_carriage_depth+bearing_dia/4,
-										carriage_height/9], 
-										center=true);
+							rail_holders(LM8OP_dia(), LM8OP_length(), Yaxis_seperation);
 						}
 					}
-					
-					translate([	carriage_width/2+(Yaxis_seperation/2-(Yaxis_seperation/2.5)/2-carriage_width/2)+0.2-20/2-0.1,
-								-rear_carriage_depth+rear_carriage_depth+bearing_dia/4,
-								40/2-carriage_height/2-0.1])
-						cylinder(h=40, d=20, center=true, $fn=100);
 				}
 				
+				//fillet LHS
+				difference()
+				{
+					fillets(Yaxis_seperation, carriage_width, carriage_height);
+					if(motor_end)
+					{
+						translate([14,-9,-32]) cylinder(d=3.5, h=80, $fn=50, center=true); //srss rod axle
+						translate([14,-9,Yaxis_pulley_offsetZ]) cylinder(d=13+1, h=15+2, $fn=50, center=true); //GT2_16
+					}
+				}
+				
+				//fillet RHS
+				mirror([1,0,0]) fillets(Yaxis_seperation, carriage_width, carriage_height);
 			}
+			
+			//holes for the bolts
+			for(i=[1,-1])
+				for(j=[1,-1])
+					translate([Yaxis_seperation/2*i+Yaxis_seperation/7*j,-rear_carriage_depth+3.33,-20]) linear_rod(3, 30);
 		}
-		//link to Z axis threaded rod
+		
+		//clamp bolts for show
+		if(display)
+		{
+			for(i=[1,-1])
+				translate([(motor_end ? -1 : 1)*Yaxis_seperation/2-Yaxis_seperation/7*i,-rear_carriage_depth+3.33,-carriage_height/2])
+				{
+					translate([0,0,24]) bolt(3, 29, 0);
+					translate([0,0,-1]) nut(3);
+				}
+			translate([(motor_end ? 1 : -1)*Yaxis_seperation/2-(motor_end ? 1 : -1)*Yaxis_seperation/7,-rear_carriage_depth+3.33,-carriage_height/2])
+			{
+				translate([0,0,motor_end ? 26.7 : 23.7]) bolt(3, motor_end ? 32 : 29, 0);
+				translate([0,0,-1]) nut(3);
+			}
+		}	
 	}
 }
 
-module bearing_holder(carriage_width, carriage_height, bearing_dia, spline=false)
+module bearing_holder(carriage_width, carriage_height, bearing_dia)
 {
 	//main vertical body of the carriage for the bearings
 	difference()
@@ -120,26 +135,22 @@ module bearing_holder(carriage_width, carriage_height, bearing_dia, spline=false
 	}
 }
 
-module bearing_captive_inserts(bearing_dia, bearing_length, spline=false, show_bearings=false)
+module bearing_captive_inserts(bearing_dia, bearing_length, show_bearings=false)
 {
 	for(i=[1,-1])
 	{
-		translate([0,-bearing_dia/2+(spline?0:1),(bearing_gap/2-wall_thickness/2)*i])
+		color("MediumSeaGreen")
+		translate([0,-bearing_dia/2,(bearing_gap/2-wall_thickness/2)*i])
 		{
 			cube(size=[bearing_dia,bearing_dia/4,wall_thickness], center=true);
 			translate([0,0,(bearing_length+wall_thickness)*i])
 				cube(size=[bearing_dia,bearing_dia/4,wall_thickness], center=true);
 		}
 		
-		if(show_bearings && !spline)
+		if(show_bearings)
 		{
 				translate([0,0,(bearing_length/2+bearing_gap/2)*i]) LM(rod_dia);
 		}
-	}
-	
-	if(spline)
-	{
-		translate([0,0,-(bearing_length/2+bearing_gap/2)]) SRSSBP(10); //SRSSZY(10);;
 	}
 }
 
@@ -181,35 +192,84 @@ module rail_holders(bearing_dia, bearing_length, Yaxis_seperation)
 				}
 			}
 		}
-		
-		//bolt holes
-		for(j=[1,-1])
-			translate([Yaxis_seperation/7*j,-rear_carriage_depth+3.33,23]) rotate([0,180,0]) bolt(3,40);
 	}
 	
 	//clampy bits for the Y axis rod
 	translate([	0,
-				print? 11 : 6.5/2-rear_carriage_depth,
-				print? -0.5 : carriage_height/4.5])
+				display? 6.5/2-rear_carriage_depth : 11,
+				display? carriage_height/4.5 : -0.5])
 	{
 		color("MediumSeaGreen")
 		difference()
 		{
 			//main block
-			translate([0,0,0.5]) linear_extrude(height=9) roundedSquare(pos=[Yaxis_seperation/2.5,6.5],r=3);
+			translate([0,0,0.5])
+				linear_extrude(height=9) roundedSquare(pos=[Yaxis_seperation/2.5,6.5],r=3);
 			//where the rod goes
 			rotate([90,0,0])
 				cylinder(r=rod_dia/2, h=40, center=true, $fn=50);
 			//bolt holes (M3)
 			for(j=[1,-1])
-				translate([Yaxis_seperation/7*j,0.08,20]) rotate([0,180,0]) bolt(3,40);
+				translate([Yaxis_seperation/7*j,0,0]) linear_rod(3,100);
 		}
 	}
+}
+
+module fillets(Yaxis_seperation, carriage_width, carriage_height)
+{
+	bearing_dia = carriage_width - wall_thickness*2;
 	
-	//bolts for show
-	if(!print)
+	//big big fillet. mega fillet
+	color("MediumSeaGreen")
+	difference()
 	{
-		for(j=[1,-1])
-				color("Silver") translate([Yaxis_seperation/7*j,-rear_carriage_depth+3.33,26]) rotate([0,180,0]) bolt(3,40);
-	}	
+		union()
+		{
+			//vertical fillet
+			difference()
+			{
+				//width of fillet should be muliple of yaxis_sep, yet distance from origin should relate to carriage width
+				translate([	Yaxis_seperation/(6*2)+carriage_width/2-0.1, //cw/2 + x + yx/12
+							(carriage_width/1.21)/2-rear_carriage_depth,
+							-carriage_height/4])
+					cube(size=[Yaxis_seperation/6,
+								carriage_width/1.21,
+								carriage_height/2], 
+								center=true);
+				
+				translate([carriage_height*1.1/2+carriage_width/2-0.1,6.5,0])
+					rotate([90,0,0])
+						cylinder(h=30, d=carriage_height*1.1, center=true, $fn=100);
+						
+				translate([carriage_height*0.5/2+carriage_width/2-0.1,-11.9,0])
+					rotate([90,0,0])
+						cylinder(h=7, d=carriage_height*0.5, center=true, $fn=100);
+				
+				//clampy bits for the Y axis rod
+				translate([	Yaxis_seperation/2,
+							6.5/2-rear_carriage_depth,
+							-carriage_height/2+carriage_height/4.5-1])
+						//main block
+						translate([0,0,0.5]) linear_extrude(height=9) roundedSquare(pos=[Yaxis_seperation/2.5+0.5,6.5+0.5],r=3);
+			}
+			
+			
+			//side fillet
+			translate([	(Yaxis_seperation/2-(Yaxis_seperation/2.5)/2-carriage_width/2)/2+carriage_width/2, 
+						(rear_carriage_depth+bearing_dia/4)/2-rear_carriage_depth, 
+						carriage_height/18-carriage_height/2])
+			{
+				cube(size=[(Yaxis_seperation/2-(Yaxis_seperation/2.5)/2-carriage_width/2)+0.2,
+							rear_carriage_depth+bearing_dia/4,
+							carriage_height/9], 
+							center=true);
+			}
+		}
+		
+		//chunk of a cylinder to make the fillet nicely curved
+		translate([	carriage_width/2+(Yaxis_seperation/2-(Yaxis_seperation/2.5)/2-carriage_width/2)+0.2-20/2-0.1,
+					-rear_carriage_depth+rear_carriage_depth+bearing_dia/4,
+					40/2-carriage_height/2-0.1])
+			cylinder(h=40, d=20, center=true, $fn=100);
+	}
 }
