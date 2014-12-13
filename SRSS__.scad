@@ -12,10 +12,10 @@ use <MCAD/gears.scad>
 use <springs.scad>
 
 $fn=50;
-
-SRSS__3 = [3.18, 9.53, 12.7, 2.41, (3/8)*25.4, 24, 6.35];
-SRSS__6 = [6.35, 12.70, 19.1, 5.13, (7/16)*25.4, 20, 6.35];
-SRSS__10 = [9.53, 15.88, 25.4, 7.77, (9/16)*25.4, 20, 9.53]; // 9⁄16 inch: 0.5625inch \ 14.2875mm
+//			d	  d(b)      l(b)        thread d	  		 l(t)
+SRSS__3 = [	3.18, 9.53, 	12.7, 2.41, (3/8)*25.4, 	24, 6.35];
+SRSS__6 = [	6.35, 12.70, 	19.1, 5.13, (7/16)*25.4, 	20, 6.35];
+SRSS__10 = [9.53, 15.88, 	25.4, 7.77, (9/16)*25.4, 	20, 9.53]; // 9⁄16 inch: 0.5625inch \ 14.2875mm
 
 
 function SRSS__3_length() = SRSS__3[2];
@@ -120,8 +120,9 @@ module _SRSSBY(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, th
 
 module _SRSSZP(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, thread_bolt_dia, threads_per_inch, thread_length)
 {
-	backlash_height = bushing_length-thread_length-3;
-	backlash_flange_height = 4;
+	grip_height = bushing_length/8;
+	backlash_height = bushing_length-thread_length-grip_height;
+	backlash_flange_height = backlash_height/10;
 	
 	//anti backlash bearing
 	translate([0,0,-bushing_length/2])
@@ -135,10 +136,10 @@ module _SRSSZP(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, th
 				color("Goldenrod") cylinder(d=bushing_outside_dia, h=thread_length, center=false);
 				
 				//top grippy bit
-				translate([0,0,3/2+bushing_length-3]) 
+				translate([0,0,bushing_length-grip_height/2]) 
 					difference()
 					{
-						color("DimGray") cylinder(d=bushing_outside_dia, h=3, center=true);
+						color("DimGray") cylinder(d=bushing_outside_dia, h=grip_height, center=true);
 						for(i=[0,90])
 						{
 							rotate([0,0,i]) cube(size=[bushing_outside_dia+3,3,6], center=true);
@@ -158,11 +159,11 @@ module _SRSSZP(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, th
 							//-2 to create a flange of 1mm top and bottom
 							cylinder(d=bushing_outside_dia+1, h=backlash_height-backlash_flange_height, center=true); 
 							//-1mm spring guage
-							cylinder(d=bushing_outside_dia-1, h=backlash_height-1, center=true);
+							cylinder(d=bushing_outside_dia-1, h=backlash_height, center=true);
 						}
 					}
 					
-					color("Silver") spring(bushing_outside_dia, 1, backlash_height-backlash_flange_height, 5);
+					color("Silver") spring(bushing_outside_dia, 1, backlash_height-backlash_flange_height, backlash_height/1.5);
 				}
 			}
 			
@@ -175,8 +176,9 @@ module _SRSSZP(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, th
 module _SRSSZY(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, thread_bolt_dia, threads_per_inch, thread_length)
 {
 	//anti backlash with thread
-	backlash_height = bushing_length-thread_length-3;
-	backlash_flange_height = 4;
+	grip_height = bushing_length/10;
+	backlash_height = bushing_length-thread_length-grip_height;
+	backlash_flange_height = backlash_height/8;
 	
 	translate([0,0,-bushing_length/2])
 	{
@@ -189,10 +191,10 @@ module _SRSSZY(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, th
 				translate([0,0,thread_length/2]) color("Goldenrod") thread(thread_bolt_dia, 0.5, thread_length, 25.4/threads_per_inch);
 				
 				//top grippy bit
-				translate([0,0,3/2+bushing_length-3]) 
+				translate([0,0,bushing_length-grip_height/2]) 
 					difference()
 					{
-						color("DimGray") cylinder(d=bushing_outside_dia, h=3, center=true);
+						color("DimGray") cylinder(d=bushing_outside_dia, h=grip_height, center=true);
 						for(i=[0,90])
 						{
 							rotate([0,0,i]) cube(size=[bushing_outside_dia+3,3,6], center=true);
@@ -212,11 +214,11 @@ module _SRSSZY(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, th
 							//-2 to create a flange of 1mm top and bottom
 							cylinder(d=bushing_outside_dia+1, h=backlash_height-backlash_flange_height, center=true); 
 							//-1mm spring guage
-							cylinder(d=bushing_outside_dia-1, h=backlash_height-1, center=true);
+							cylinder(d=bushing_outside_dia-1, h=backlash_height, center=true);
 						}
 					}
 					
-					color("Silver") spring(bushing_outside_dia, 1, backlash_height-backlash_flange_height, 5);
+					color("Silver") spring(bushing_outside_dia, 1, backlash_height-backlash_flange_height, backlash_height/1.5);
 				}
 			}
 			
@@ -257,3 +259,5 @@ translate([40,-40,0]) 	SRSSBP(10);
 translate([-40,-40,0]) 	SRSSBY(10);
 translate([-40,40,0]) 	SRSSZP(10);
 translate([40,40,0]) 	SRSSZY(10);
+translate([55,55,0]) 	SRSSZY(6);
+translate([66,66,0]) 	SRSSZY(3);
