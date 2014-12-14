@@ -167,6 +167,21 @@ http://www.ebay.co.uk/sch/i.html?_trksid=p2050601.m570.l1313&_nkw=Nichia+3+watt+
 
 from https://www.kickstarter.com/projects/1537608281/lazerblade-the-affordable-laser-cutter-engraver
 
+## steppers
+
+The Mendel officially requires approximately 13.7 N·cm torque (19.4 ozf·in) of holding torque (or more) for each of the X, Y and Z axis motors to avoid issues
+http://www.reprap.org/wiki/Stepper_Motor#Purchasing_a_motor
+
+
+The lower the inductance and the higher the rated current, the higher the torque as speed increases.  - http://www.reprap.org/wiki/Stepper_torque
+
+
+http://www.wantmotor.com/ProductsView.asp?id=155&pid=80
+http://www.aliexpress.com/item/CNC-Nema17-for-12VDC-2800g-cm-34mm-length-4-Lead-Wantai-Stepper-Motor/642541669.html
+http://www.aliexpress.com/item/Best-selling-Nema-17-series-hybrid-stepping-motor-42BYGHW213-34mm-12V-0-6A-2000g-cm-5wires/503810268.html
+
+http://www.wantmotor.com/ProductsView.asp?id=153&pid=80 - extruder alt?
+
 # Software
 http://www.machinekit.io/useful - Linux CNC packaged into Debian with a RT kernel for the beaglebone black
 
