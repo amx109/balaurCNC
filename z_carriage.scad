@@ -27,9 +27,7 @@ module z_carriage(bearing_dia, bearing_length, Yaxis_seperation, motor_end=false
 	carriage_height = bearing_length*2 + bearing_gap + wall_thickness*2;
 	carriage_width = bearing_dia + wall_thickness*2;
 	
-	Yaxis_pulley_offsetZ = 7;
-	
-	echo(carriage_height);
+	Yaxis_pulley_offsetZ = 7.2;
 	
 	union()
 	{
@@ -42,16 +40,18 @@ module z_carriage(bearing_dia, bearing_length, Yaxis_seperation, motor_end=false
 				bearing_captive_inserts(bearing_dia, bearing_length, show_bearings = display?1:0);
 			}
 			
-			if(motor_end)
+			if(motor_end) //bits to allow Y axis control
 			{
-				translate([14,-9,0])
+				translate([14,-9,Yaxis_pulley_offsetZ])
 				{
-					translate([0,0, Yaxis_pulley_offsetZ+1+SRSS__3_length()]) cylinder(d=SRSS__3_dia()+2, h=SRSS__3_length()+2, $fn=50, center=true); //srss
-					translate([0,0, Yaxis_pulley_offsetZ]) cylinder(d=13+1, h=15+2, $fn=50, center=true); //GT2_16
+					translate([0,0, 0.5+SRSS__3_length()])
+						cylinder(d=SRSS__3_dia()+2, h=SRSS__3_length()+2, $fn=50, center=true); //srss bushing
+					translate([0,0,10.9]) cylinder(d=(9/16*25.4), h=6.35, $fn=50, center=true); 
+					translate([0,0,0]) cylinder(d=13+1, h=15+2, $fn=50, center=true); //GT2_16
 				} 
 			}
 			
-			//translate([0,0,29]) cube(size=[30,40,50], center=true); //allows me to check bearing holder cross section
+			//translate([0,0,43]) cube(size=[30,40,50], center=true); //allows me to check bearing holder cross section
 		}
 		
 		difference() //need to make those bolt holes somehow..
@@ -117,8 +117,14 @@ module bearing_holder(carriage_width, carriage_height, bearing_dia)
 		hull()
 		{
 			//bulk for use as anchor for y axis holders
-			translate([0,(carriage_width/3)/2-rear_carriage_depth,0])
-				cube(size=[carriage_width,carriage_width/3,carriage_height], center=true);
+			//translate([0, (carriage_width/3)/2-rear_carriage_depth, 0])
+				//cube(size=[carriage_width, carriage_width/3, carriage_height], center=true);
+			translate([0, (carriage_width/3)/2-rear_carriage_depth, -carriage_height/2])
+			{
+				linear_extrude(height=carriage_height) roundedSquare(pos=[carriage_width,carriage_width/3],r=3);
+				
+			}
+				
 			
 			//bearing holder
 			cylinder(d=carriage_width, h=carriage_height, center=true);
@@ -215,61 +221,50 @@ module rail_holders(bearing_dia, bearing_length, Yaxis_seperation)
 	}
 }
 
+module z_threaded_rod_link()
+{
+}
+
 module fillets(Yaxis_seperation, carriage_width, carriage_height)
 {
 	bearing_dia = carriage_width - wall_thickness*2;
 	
 	//big big fillet. mega fillet
 	color("MediumSeaGreen")
-	difference()
+	union()
 	{
-		union()
+		difference()
 		{
-			//vertical fillet
-			difference()
-			{
-				//width of fillet should be muliple of yaxis_sep, yet distance from origin should relate to carriage width
-				translate([	Yaxis_seperation/(6*2)+carriage_width/2-0.1, //cw/2 + x + yx/12
-							(carriage_width/1.21)/2-rear_carriage_depth,
-							-carriage_height/4])
-					cube(size=[Yaxis_seperation/6,
-								carriage_width/1.21,
-								carriage_height/2], 
-								center=true);
-				
-				translate([carriage_height*1.1/2+carriage_width/2-0.1,6.5,0])
-					rotate([90,0,0])
-						cylinder(h=30, d=carriage_height*1.1, center=true, $fn=100);
-						
-				translate([carriage_height*0.5/2+carriage_width/2-0.1,-11.9,0])
-					rotate([90,0,0])
-						cylinder(h=7, d=carriage_height*0.5, center=true, $fn=100);
-				
-				//clampy bits for the Y axis rod
-				translate([	Yaxis_seperation/2,
-							6.5/2-rear_carriage_depth,
-							-carriage_height/2+carriage_height/4.5-1])
-						//main block
-						translate([0,0,0.5]) linear_extrude(height=9) roundedSquare(pos=[Yaxis_seperation/2.5+0.5,6.5+0.5],r=3);
-			}
-			
-			
-			//side fillet
-			translate([	(Yaxis_seperation/2-(Yaxis_seperation/2.5)/2-carriage_width/2)/2+carriage_width/2, 
-						(rear_carriage_depth+bearing_dia/4)/2-rear_carriage_depth, 
-						carriage_height/18-carriage_height/2])
-			{
-				cube(size=[(Yaxis_seperation/2-(Yaxis_seperation/2.5)/2-carriage_width/2)+0.2,
-							rear_carriage_depth+bearing_dia/4,
-							carriage_height/9], 
+			//width of fillet should be muliple of yaxis_sep, yet distance from origin should relate to carriage width
+			translate([	Yaxis_seperation/(6*2)+carriage_width/2-0.1-3/2, 
+						(carriage_width/1.21)/2-rear_carriage_depth,
+						-carriage_height/4])
+				cube(size=[Yaxis_seperation/6+3,
+							carriage_width/1.21,
+							carriage_height/2], 
 							center=true);
-			}
-		}
+			
+			//rear most fillet
+			translate([carriage_height*0.5/2+carriage_width/2, -11.9, 0])
+				rotate([90,0,0])
+					cylinder(h=7, d=carriage_height*0.5, center=true, $fn=100);
+					
+			//front shallow fillet
+			translate([carriage_height*1.1/2+carriage_width/2, 6.5, 0])
+				rotate([90,0,0])
+					cylinder(h=30, d=carriage_height*1.1, center=true, $fn=100);
+					
+			//vertical curved fillet that meets the bearing holder
+			translate([carriage_width/2+(Yaxis_seperation/2-(Yaxis_seperation/2.5)/2-carriage_width/2)+0.2-20/2-0.1,
+				-rear_carriage_depth+rear_carriage_depth+bearing_dia/4,
+				40/2-carriage_height/2-0.1])
+				cylinder(h=40, d=20, center=true, $fn=100);
 		
-		//chunk of a cylinder to make the fillet nicely curved
-		translate([	carriage_width/2+(Yaxis_seperation/2-(Yaxis_seperation/2.5)/2-carriage_width/2)+0.2-20/2-0.1,
-					-rear_carriage_depth+rear_carriage_depth+bearing_dia/4,
-					40/2-carriage_height/2-0.1])
-			cylinder(h=40, d=20, center=true, $fn=100);
+			//make way for the clampy bits for the Y axis rod
+			translate([	Yaxis_seperation/2,
+						6.5/2-rear_carriage_depth,
+						-carriage_height/2+carriage_height/4.5-1])
+					translate([0,0,0.5]) linear_extrude(height=9) roundedSquare(pos=[Yaxis_seperation/2.5+0.5,6.5+0.5],r=3);
+		}
 	}
 }
