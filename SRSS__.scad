@@ -63,6 +63,8 @@ module SRSSZP(size)
 
 module SRSSZY(size)
 {
+	echo(str("Item: SRSSZY antibacklash bushing ",size,"mm diameter"));
+	
 	if (size == 3)
 	{
 		_SRSSZY(SRSS__3[0], SRSS__3[1], SRSS__3[2], SRSS__3[3], SRSS__3[4], SRSS__3[5], SRSS__3[6]);
@@ -230,6 +232,8 @@ module _SRSSZY(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, th
 
 module SRSS_rod(size, length)
 {
+	echo(str("Item: SRSS spline rod ",size,"mm diameter ",length,"mm length"));
+	
 	if (size == 3)
 	{
 		color("DimGray", 1) _SRSS_rod(SRSS__3[0], length);

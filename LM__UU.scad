@@ -19,6 +19,8 @@ function LM8_dia() = LM8[2];
 
 module LM(size)
 {
+	echo(str("Item: LM",size,"UU bushing"));
+	
 	if (size == 8)
 	{
 		_LM(LM8[0], LM8[1], LM8[2], LM8[3], LM8[4], LM8[5], LM8[6], LM8[7], LM8[8], LM8[9]);

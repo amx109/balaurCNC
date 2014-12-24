@@ -71,11 +71,13 @@ module metal_pulley(type) {
 
 module gt2_modified()
 {
+	echo(str("Item: Pulley GT2 20 teeth"));
 	metal_pulley(GT2x20_modified);
 }
 
 module gt2_small()
 {
+	echo(str("Item: Pulley GT2 16 teeth"));
 	metal_pulley(GT2x16_small);
 }
 

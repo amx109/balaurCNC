@@ -17,6 +17,7 @@ function LM8OP_dia() = LM8UUOP[1];
 
 module LMOP(size)
 {
+	echo(str("Item: LM",size,"OPUU bushing"));
 	if (size == 8)
 	{
 		_LM__UUOP(LM8UUOP[0], LM8UUOP[1], LM8UUOP[2], LM8UUOP[3], LM8UUOP[4], LM8UUOP[5], LM8UUOP[6], LM8UUOP[7], LM8UUOP[8]);
