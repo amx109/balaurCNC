@@ -1,19 +1,21 @@
 fn=36;
 
-fillet(100,10);
-module fillet(len,r)
+module fillet(x, y, z)
 {
-	p=r;
-	linear_extrude(height=len)
+	r = x>z ? (x*x)/(2*z) + (z*z)/(2*z) : (z*z)/(2*x) + (x*x)/(2*x);
+	
 	difference()
 	{
-		square([p,p]);
-		circle(r, $fn = fn );
+		translate([x/2,0,z/2]) cube(size=[x, y, z], center=true);
+		translate([x>z?x:r, 0, x>z?r:z]) rotate([90,0,0]) cylinder(r=r, h=y+1, $fn=100, center=true);
 	}
 }
 
 module linear_rod(diameter, length, threaded=false)
 {
+	
+	echo(str("Item: ", threaded ? "Threaded" : "Linear", " Rod ", diameter, "mm ",length, "mm"));
+	
 	pitch = diameter/6;
 	color("LightGrey") 
 	if(threaded)
@@ -26,9 +28,11 @@ module linear_rod(diameter, length, threaded=false)
 		cylinder(r=diameter/2, h=length, center=true);
 }
 
-module bearing(OD, ID, height)
+module bearing(OD, ID, height, description=-1)
 {
-	bearingsize = OD;
+	echo(str("Item: Bearing ", description==-1 ? "" : description, "  ", ID,"x",OD,"x",height," mm (ID x OD x height)"));
+	
+	bearingsize = OD; 
 	bearingwidth = height;
 	screwsize = ID;
 	
@@ -53,8 +57,10 @@ module bearing(OD, ID, height)
 	}
 }
 
-module nut(M, washer=false)
+module nut(M, washer=false, flat=false)
 {
+	echo(str("Item: Nut M",M));
+	
 	nutsize = 0.8 * M;
 	nutdiameter = 1.9 * M;
 	
@@ -63,7 +69,7 @@ module nut(M, washer=false)
 	{
 		intersection()
 		{
-			scale([1, 1, 0.5]) sphere(r = 1.05 * M, center = true);
+			scale([flat ? 5 : 1, flat ? 5 : 1, 0.5]) sphere(r = 1.05 * M, center = true);
 			difference()
 			{
 				cylinder (h = nutsize, r = nutdiameter / 2, center = true, $fn = 6);
@@ -74,9 +80,11 @@ module nut(M, washer=false)
 	}
 }
 
-module washer(M)
+module washer(M, dia=-1)
 {
-	washerdiameter = 2 * M;
+	echo(str("Item: Washer M",M," ", dia!=-1 ? dia : ""));
+	
+	washerdiameter = dia==-1 ? 2 * M : dia;
 	washersize = 0.2 * M;
 	
 	color("silver")
@@ -89,6 +97,8 @@ module washer(M)
 
 module bolt(M, length, csk=false, threaded=false)
 {
+	echo(str("Item: Bolt M",M,"x",length, "mm", csk ? " CSK" : ""));
+	
 	pitch = M /6;
 	
 	color("silver")
