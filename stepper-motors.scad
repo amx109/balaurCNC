@@ -88,6 +88,7 @@ module NEMA_screws(motor, n = 4, screw_length = 8, screw_type = M3_pan_screw) {
 
 module nema_motor(size)
 {
+	echo(str("Item: NEMA",size," Stepper Motor"));
 	if(size == 17) NEMA(NEMA17);
 	if(size == "17S") NEMA(NEMA17S);
 	if(size == 14) NEMA(NEMA14);
