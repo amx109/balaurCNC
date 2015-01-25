@@ -12,18 +12,19 @@
 //                       corner  body    boss    boss          shaft
 //         side, length, radius, radius, radius, depth, shaft, length, holes
 NEMA17  = [42.3, 47,     53.6/2, 25,     11,     2,     5,     24,     31 ];
+NEMAJAN = [42,   39.2,   53.6/2, 25,     11,     2,     5,     13,     31 ];
 NEMA17S = [42.3, 34,     53.6/2, 25,     11,     2,     5,     24,     31 ];
 NEMA14  = [35.2, 36,     46.4/2, 21,     11,     2,     5,     21,     26 ];
 NEMA23  = [56.4, 51.2,   75.7/2, 28.2,   38.1/2, 1.6,   6.35,  24,     47.1 ];
 
-function NEMA_width(motor)       = motor==17 ? NEMA17[0] : motor=="17S"? NEMA17S[0] : motor==14? NEMA14[0] : motor[0];
-function NEMA_length(motor)      = motor==17 ? NEMA17[1] : motor=="17S"? NEMA17S[1] : motor==14? NEMA14[1] : motor[1];
+function NEMA_width(motor)       = motor==17 ? NEMA17[0] : motor=="JAN"? NEMAJAN[0] : motor=="17S"? NEMA17S[0] : motor==14? NEMA14[0] : motor[0];
+function NEMA_length(motor)      = motor==17 ? NEMA17[1] : motor=="JAN"? NEMAJAN[1] : motor=="17S"? NEMA17S[1] : motor==14? NEMA14[1] : motor[1];
 function NEMA_radius(motor)      = motor[2];
-function NEMA_boss_radius(motor) = motor==17 ? NEMA17[4] : motor=="17S"? NEMA17S[4] : motor==14? NEMA14[4] : motor[4];
-function NEMA_boss_height(motor) = motor==17 ? NEMA17[5] : motor=="17S"? NEMA17S[5] : motor==14? NEMA14[5] : motor[5];
+function NEMA_boss_radius(motor) = motor==17 ? NEMA17[4] : motor=="JAN"? NEMAJAN[4] : motor=="17S"? NEMA17S[4] : motor==14? NEMA14[4] : motor[4];
+function NEMA_boss_height(motor) = motor==17 ? NEMA17[5] : motor=="JAN"? NEMAJAN[5] : motor=="17S"? NEMA17S[5] : motor==14? NEMA14[5] : motor[5];
 function NEMA_shaft_dia(motor)   = motor[6];
-function NEMA_shaft_length(motor)= motor==17 ? NEMA17[7] : motor=="17S"? NEMA17S[7] : motor==14? NEMA14[7] : motor[7];
-function NEMA_hole_pitch(motor)  = motor==17 ? NEMA17[8] : motor=="17S"? NEMA17S[8] : motor==14? NEMA14[8] : motor[8];
+function NEMA_shaft_length(motor)= motor==17 ? NEMA17[7] : motor=="JAN"? NEMAJAN[7] : motor=="17S"? NEMA17S[7] : motor==14? NEMA14[7] : motor[7];
+function NEMA_hole_pitch(motor)  = motor==17 ? NEMA17[8] : motor=="JAN"? NEMAJAN[8] : motor=="17S"? NEMA17S[8] : motor==14? NEMA14[8] : motor[8];
 function NEMA_holes(motor)       = [-motor[8]/2, motor[8]/2];
 
 module NEMA(motor) {
@@ -90,6 +91,7 @@ module nema_motor(size)
 {
 	echo(str("Item: NEMA",size," Stepper Motor"));
 	if(size == 17) NEMA(NEMA17);
+	if(size == "JAN") NEMA(NEMAJAN);
 	if(size == "17S") NEMA(NEMA17S);
 	if(size == 14) NEMA(NEMA14);
 	if(size == 23) NEMA(NEMA23);
