@@ -124,3 +124,21 @@ module bolt(M, length, csk=false, threaded=false)
 		}
 	}
 }
+
+module l_bracket(width, length, thickness)
+{
+	echo(str("Item: L angle "+width+"mm wide, thickness "+thickness+"mm, length "+length+"mm"));
+	color("silver")
+	difference()
+	{
+		union()
+		{
+			translate([0,0,thickness/2]) 
+			cube(size=[width,length,thickness], center=true);
+			
+			translate([-width/2+thickness/2,0,width/2])
+				rotate([0,90,0])
+						cube(size=[width,length,thickness], center=true);
+		}
+	}
+}
