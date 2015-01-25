@@ -1,0 +1,5 @@
+#! /bin/bash
+xclip -o -selection clipboard > $1
+#openscad -o $2 balaur.scad > output
+cat $1 | sed -n 's/^ECHO: "Item: //p' | sed -n 's/"//p' | sort -n | uniq -c
+
