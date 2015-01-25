@@ -20,12 +20,13 @@ rod_dia = 8;
 front_carriage_depth = 19.5; //measured from the axial centre of the smooth rod - hardwired in balaurCNC design - gives 1mm gap to bracing
 
 z_carriage(LM8_dia(), LM8_length(), 56);
-translate([display? -50 : 0, display? -50 : -35, 0]) z_carriage(LM8_dia(), LM8_length(), 56, yDrive_end=true);
 
-module z_carriage(bearing_dia, bearing_length, Yaxis_seperation, yDrive_end=false)
+translate([display? -50 : 0, display? -50 : -35, 0]) z_carriage(LM8_dia(), LM8_length(), 56);
+
+module z_carriage(bearing_dia, bearing_length, Yaxis_seperation)
 {
-	echo(str("*************** Z Carriage", yDrive_end ? " (Y Drive End)" : "", " *******************"));
-	echo(str("Item: Z Carriage", yDrive_end? " (Y Drive End)" : ""));
+	echo(str("*************** Z Carriage *******************"));
+	echo(str("Item: Z Carriage"));
 	carriage_height = bearing_length*2 + bearing_gap + wall_thickness*2;
 	carriage_width = bearing_dia + wall_thickness*2;
 	
@@ -39,38 +40,25 @@ module z_carriage(bearing_dia, bearing_length, Yaxis_seperation, yDrive_end=fals
 			bearing_holder(carriage_width, carriage_height, bearing_dia);
 			bearing_captive_inserts(bearing_dia, bearing_length, show_bearings = display?1:0);
 		
-			//Y axis rod holders
+			//Y axis rail holders
 			for(i=[0,1]) 
 				mirror([i,0,0])
 					translate([Yaxis_seperation/2, (front_carriage_depth+bearing_dia/2)/2-bearing_dia/2, -carriage_height/2])
 						rail_holders(bearing_dia, bearing_length, Yaxis_seperation);
-			
 			
 			fillets(Yaxis_seperation, carriage_width, carriage_height); //fillet LHS
 			mirror([1,0,0]) fillets(Yaxis_seperation, carriage_width, carriage_height); //fillet RHS
 		}
 		
 		//z threaded rod + nut
-		translate([0,front_carriage_depth-4.5,0])
+		translate([0,front_carriage_depth-4.5,0]) //Y=15
 		{
 			cylinder(d=7.5, h=80, $fn=50, center=true);
 			translate([0,0,carriage_height/2])
 				cylinder(d=6*1.9, h=6*0.8, $fn=6, center=true); //nut(6, flat=true);
 		}
 		
-		if(yDrive_end) //bits to allow Y axis control
-		{
-			translate([16, 5.5, 7.2])
-			{
-				translate([0,0, SRSS__3_length()+1.7])
-					cylinder(d=SRSS__3_dia()+1, h=SRSS__3_length()+1, $fn=50, center=true); //srss bushing
-				translate([0,0,16/2+7/2-0.3]) cylinder(d=(9/16*25.4)+1, h=6.5+1, $fn=50, center=true); //the nut
-				translate([0,0,0]) cylinder(d=13+1, h=16+1, $fn=50, center=true); //GT2_16
-				translate([0,0,-10]) cylinder(d=3.18+1.5, h=80, $fn=50, center=true); //srss rod axle
-			}
-		}
-		
-		//holes for the bolts
+		//holes for the bolts to hold y rails
 		for(i=[1,-1])
 			for(j=[1,-1])
 				translate([Yaxis_seperation/2*i+Yaxis_seperation/7*j, -bearing_dia/2+3.33, -20])
@@ -87,7 +75,7 @@ module z_carriage(bearing_dia, bearing_length, Yaxis_seperation, yDrive_end=fals
 		
 		for(i=[1,-1])
 		{
-			translate([(yDrive_end ? -1 : 1)*Yaxis_seperation/2-Yaxis_seperation/7*i, -bearing_dia/2+3.33, -carriage_height/2])
+			translate([Yaxis_seperation/2-Yaxis_seperation/7*i, -bearing_dia/2+3.33, -carriage_height/2])
 			{
 				translate([0,0,24]) bolt(3, 29, 0);
 				translate([0,0,-1]) nut(3);
@@ -95,15 +83,14 @@ module z_carriage(bearing_dia, bearing_length, Yaxis_seperation, yDrive_end=fals
 			translate([0, 0, (bearing_length/2+bearing_gap/2-0.25)*i]) LM(rod_dia);
 		}
 		
-		if(!yDrive_end)
+		
+		translate([	-Yaxis_seperation/2+Yaxis_seperation/7,
+					-bearing_dia/2+3.33,-carriage_height/2])
 		{
-			translate([	-Yaxis_seperation/2+Yaxis_seperation/7,
-						-bearing_dia/2+3.33,-carriage_height/2])
-			{
-				translate([0,0,23.7]) bolt(3, 29, 0);
-				translate([0,0,-1]) nut(3);
-			}
+			translate([0,0,23.7]) bolt(3, 29, 0);
+			translate([0,0,-1]) nut(3);
 		}
+		
 	}
 }
 
