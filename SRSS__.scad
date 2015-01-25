@@ -25,7 +25,7 @@ function SRSS__6_dia() = SRSS__6[1];
 function SRSS__10_length() = SRSS__10[2];
 function SRSS__10_dia() = SRSS__10[1];
 
-module SRSSBP(size)
+module SRSSBP(size) //plain bushing no thread
 {
 	if (size == 6)
 	{
@@ -37,8 +37,12 @@ module SRSSBP(size)
 	}
 }
 
-module SRSSBY(size)
+module SRSSBY(size) //plain bushing, with thread
 {
+	if (size == 3)
+	{
+		_SRSSBY(SRSS__3[0], SRSS__3[1], SRSS__3[2], SRSS__3[3], SRSS__3[4], SRSS__3[5], SRSS__3[6]);
+	}
 	if (size == 6)
 	{
 		_SRSSBY(SRSS__6[0], SRSS__6[1], SRSS__6[2], SRSS__6[3], SRSS__6[4], SRSS__6[5], SRSS__6[6]);
@@ -49,7 +53,7 @@ module SRSSBY(size)
 	}
 }
 
-module SRSSZP(size)
+module SRSSZP(size) //anti back lash nut, no thread
 {
 	if (size == 6)
 	{
@@ -61,7 +65,7 @@ module SRSSZP(size)
 	}
 }
 
-module SRSSZY(size)
+module SRSSZY(size) //antiback lash nut, with thread
 {
 	echo(str("Item: SRSSZY antibacklash bushing ",size,"mm diameter"));
 	
