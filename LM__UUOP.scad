@@ -10,10 +10,18 @@ use <MCAD/libtriangles.scad>
 
 $fn=50;
 
-LM8UUOP = [8, 15, 24, 17.5, 14.3, 1.1, 1, 6.8, 80]; // opening angle+gap info is from LM10UUOP
+LM8UUOP =  [8,  15, 24, 17.5, 14.3, 1.1, 1, 6.8, 80]; // opening angle+gap info is from LM10UUOP
+LM12UUOP = [12, 22, 32, 22.9, 21,   1.3, 1, 8, 78];
+LM16UUOP = [16, 26, 36, 24.9, 24.9, 1.3, 1, 10.8, 78];
 
 function LM8OP_length() = LM8UUOP[2];
 function LM8OP_dia() = LM8UUOP[1];
+
+function LM12OP_length() = LM12UUOP[2];
+function LM12OP_dia() = LM12UUOP[1];
+
+function LM16OP_length() = LM16UUOP[2];
+function LM16OP_dia() = LM16UUOP[1];
 
 module LMOP(size)
 {
@@ -22,10 +30,19 @@ module LMOP(size)
 	{
 		_LM__UUOP(LM8UUOP[0], LM8UUOP[1], LM8UUOP[2], LM8UUOP[3], LM8UUOP[4], LM8UUOP[5], LM8UUOP[6], LM8UUOP[7], LM8UUOP[8]);
 	}
+	if (size == 12)
+	{
+		_LM__UUOP(LM12UUOP[0], LM12UUOP[1], LM12UUOP[2], LM12UUOP[3], LM12UUOP[4], LM12UUOP[5], LM12UUOP[6], LM12UUOP[7], LM12UUOP[8]);
+	}
+	if (size == 16)
+	{
+		_LM__UUOP(LM16UUOP[0], LM16UUOP[1], LM16UUOP[2], LM16UUOP[3], LM16UUOP[4], LM16UUOP[5], LM16UUOP[6], LM16UUOP[7], LM16UUOP[8]);
+	}
 }
 
 module LMOP_oversize(size)
 {
+	//match bearing based on bearing outer dia
 	if (size == 15) //then is an LM8
 	{
 		_LM__UUOP(LM8UUOP[0], LM8UUOP[1], LM8UUOP[2], LM8UUOP[3], LM8UUOP[4], LM8UUOP[5], LM8UUOP[6], LM8UUOP[7]-1, LM8UUOP[8]-20);
@@ -56,7 +73,7 @@ module _LM__UUOP(dr, D, L, B, D1, W, F, E, angle)
 					rotate([-90,0,0])
 						eqlprism(xlen, ylen+1, zlen);
 				//the gap in the centre
-				translate([0,E+2,0.1])
+				*translate([0,E+2,0.1])
 					cube(size=[E,E/2,L], center=true);
 			}
 		}
@@ -64,5 +81,5 @@ module _LM__UUOP(dr, D, L, B, D1, W, F, E, angle)
 }
 
 //uncomment to display
-//LMOP(8);
-//LMOP_oversize(8);
+LMOP(16);
+//LMOP_oversize(15);
