@@ -20,7 +20,7 @@ case_lid_int_Z = 54.0;
 case_bottom_ext_Z = 97;
 case_bottom_wall_thickness = 11.0-1.5;
 case_bottom_int_X  = caseX - (case_bottom_wall_thickness * 2);
-case_bottom_int_Y  = caseY - (case_bottom_wall_thickness * 2);
+case_bottom_int_Y  = caseY - (case_bottom_wall_thickness * 2) - 1;
 case_bottom_int_Z = 89;
 
 function caseX() = caseX;
