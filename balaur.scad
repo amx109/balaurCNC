@@ -15,8 +15,8 @@ use <belts.scad>
 use <stepper-motors.scad>
 use <ironmongery.scad>
 use <pullies.scad>
-use <WS-XX-XX.scad>
 use <FTSU.scad>
+use <toggle_clamp.scad>
 
 /*************************** variables *****************************/ 
 $fn=50;
@@ -29,7 +29,6 @@ A4_length = 297;
 tslot_size = 30; // we're going to use 30mm tslot
 
 //variables to fuck with Y axis position/hinge/A4 bed
-
 folded = 0;
 hinge_open_angle = 86; // Z axis must be at max height
 
@@ -39,26 +38,30 @@ Yaxis_Z_position = 	folded ? 280 : 110; //110 = Z0, maxZ = 219. build height in 
 
 Yaxis_seperation = 56; //mendel90 uses 56mm width for rails
 
-moveBed = 1;
+moveBed = 0;
 bedleftright = 0; // 1 = left
 bed_X_shift = moveBed ? (bedleftright ? -A4_length/2 : A4_length/2) : (folded ? -60 : 0);
 
 nemaTypeX = "JAN";
 nemaTypeY = "JAN";
-nemaTypeZ = "17S";
+nemaTypeZ = "17SWantai";
 
 ZmotorWidth = NEMA_width(nemaTypeZ);
 
 brace_wall_thickness = 3;
 Zfloor = tslot_size+brace_wall_thickness;
-Zheight = 300; //max height of Z axis from Zfloor
+Zheight = 314; //max height of Z axis from Zfloor
 threaded = 0;
 
 echosize("Print height is", Zheight-110);
 
 draw();
 *x_carriage(113.5, 93);
-*brace(brace_wall_thickness, case_bottom_int_Y(), Zheight+brace_wall_thickness, Yaxis_seperation, net=true);
+*brace(	brace_wall_thickness,
+					case_bottom_int_Y(),
+					Zheight+brace_wall_thickness,
+					NEMA_width(nemaTypeZ), //gauge
+					net=1);
 
 module draw() /****** built from the bottom up *******/
 {
@@ -86,7 +89,7 @@ module draw() /****** built from the bottom up *******/
 		rotate([0,folding_angle,0])
 		{
 			/********* Y axis **********/
-			Yaxis();
+			*Yaxis();
 			
 			/********* Z axis *********/
 			Zaxis();
@@ -98,7 +101,7 @@ module draw() /****** built from the bottom up *******/
 	
 	/**** base for the whole machine - will sit inside the suitcase
 	 **** floor of the machine is the top surface of the base ****/
-	translate([0,0,-base_height])
+	*translate([0,0,-base_height])
 		base(base_height);
 	
 	/************* suitcase *************/
@@ -126,15 +129,18 @@ module Xaxis()
 	echo("*                                                             *");
 	echo("*                                                             *");
 	echo("***************************************************************");
-	/***** a frame made out of tslot - goes in both X and Y directions ******/
+	// a frame made out of tslot - goes in both X and Y directions 
 	for(i=[0,1])
 	{
-		/***** the tslot for x axis *****/
+		// the tslot for x axis 
 		mirror([0,i,0])
 			translate([0, (case_bottom_int_Y()/2)-tslot_size/2, 0])
+			{
 				tslot_centered(case_bottom_int_X(), tslot_size);
+				translate([80, 0, tslot_size]) toggle_clamp();
+			}
 		
-		/*** tslot for bracing of x axis, in the y direction ***/
+		// tslot for bracing of x axis, in the y direction 
 		mirror([i,0,0])
 			translate([((case_bottom_int_X())/2)-tslot_size/2, 0, 0])
 				rotate ([0,0,90])
@@ -154,12 +160,19 @@ module Xaxis()
 			nema_motor(nemaTypeX);
 	
 	//x carriage
-	translate([YZaxis_X_position+bed_X_shift, 0, 0]) 
+	translate([YZaxis_X_position+bed_X_shift, 0, 0])
 		x_carriage(	case_bottom_int_Y()/2-tslot_size-FTSU_height(12),
 					-base_height
 					-(case_bottom_ext_Z()-case_bottom_int_Z())
 					+case_bottom_ext_Z() //all this upto here puts the bed on the lip
 					+7);
+	
+	color("LightCoral")
+			translate([YZaxis_X_position+bed_X_shift,0,
+					-base_height
+					-(case_bottom_ext_Z()-case_bottom_int_Z())
+					+case_bottom_ext_Z() //all this upto here puts the bed on the lip
+					+7+4]) a4Bed(5, bed_height=3);
 	echo("********************** X Axis END *****************************");
 }
 
@@ -184,7 +197,7 @@ module Yaxis()
 	idlerBearing_dia = 6;
 	
 	yDrivePulley_x = -NEMA_width(nemaTypeY)-3;//-16;
-	yDrivePulley_y = case_bottom_int_Y()/2-NEMA_width(nemaTypeY)/2-brace_wall_thickness;//case_bottom_int_Y()/2-brace_wall_thickness-14;
+	yDrivePulley_y = case_bottom_int_Y()/2-NEMA_width(nemaTypeY)/2-brace_wall_thickness; //case_bottom_int_Y()/2-brace_wall_thickness-14;
 	drivePulley_dia = 9.68;
 	
 	//everything that moves along the Y axis goes here
@@ -330,13 +343,14 @@ module Zaxis()
 	color("SteelBlue")
 	translate([0, 0, Zfloor-brace_wall_thickness]) 
 		rotate([0,0,90]) 
-			brace(brace_wall_thickness, case_bottom_int_Y(), Zheight+brace_wall_thickness, Yaxis_seperation, net=false);
-	
-	translate([25,-rodY,Zfloor]) 
-	#cylinder(d=5, h=10, $fn=50, center=true);
+			brace(	brace_wall_thickness,
+					case_bottom_int_Y(),
+					Zheight+brace_wall_thickness,
+					NEMA_width(nemaTypeZ), //gauge
+					net=false);
 	
 	echo(str("*************** Z lifty bit ******************"));
-	for(i=[1,-1])
+	*for(i=[1,-1])
 	{
 		translate([0, i*rodY, Zfloor])
 		{
@@ -496,108 +510,83 @@ module motor_mount_plate(ZrodYoffset)
 
 module brace(wall_thickness, width, height, gauge, net=false)
 {
-	
 	/* 
 	 * |#########|
 	 * |         |  we model this!
 	 * |_       _|
+	 * 
+	 * width = |#########|
+	 * gauge = the 'depth' of the vertical bits
+	 * 
+	 * model this lying flat in its net layout then rotate+transform into position
 	 */
-	 
-	 extra_depth = 14.5;
-	 
-	 if(!net)
-	 {
-		 //render()
-		 //bottom bit where the motor sits
-		 color("blue")
-		 translate([(width/2-ZmotorWidth/2-wall_thickness), 40/2, wall_thickness/2])
-			cube(size=[ZmotorWidth, gauge+40, wall_thickness], center=true);
-		 color("blue")
-		 translate([(width/2-ZmotorWidth/2-wall_thickness)*-1, 0, wall_thickness/2])
-			cube(size=[ZmotorWidth, gauge, wall_thickness], center=true);
-				
-		 for(i=[1,-1])
-		 {
-			//vertical side-wall type things
-			color("green")
-			translate([(width/2-wall_thickness/2)*i, (gauge*0.2)/2, height/2])
-				cube(size=[wall_thickness, gauge*1.2, height], center=true);
-			translate([i*(width/2-wall_thickness/2),(gauge*1.2)/2+(gauge*0.2)/2+extra_depth/2,height-gauge/2]) 
-				cube(size=[wall_thickness, extra_depth, gauge], center=true);
-		 }
-		 color("red")
-			translate([0, wall_thickness/2+gauge/2+(gauge*0.4)/2+extra_depth, height-gauge/2]) 
-				cube(size=[width, wall_thickness, gauge], center=true);
-	}
-	else
+	
+	*translate([0, 0, 0]) rotate([0,0,90]) color("black")cube(size=[420, 297, 1], center=true); //A3
+	*translate([0, 0, 0]) rotate([0,0,90]) color("black")cube(size=[A4_length, A4_width, 1], center=true); //A4
+	
+	extra_depth = 14.5; //in -ve X axis of the horizontal brace bar for the vertical sections
+	
+	//render()
+	for(i=[1,-1])
 	{
-		difference()
-		{
-			 union()
-			 {
-				 for(i=[1,-1])
-				 {
-					translate([(width/2+extra_depth+(gauge*1.2)/2)*i, height/2, wall_thickness/2])
-					{
-						rotate([0,90,90])
-							color("green")
-								cube(size=[wall_thickness, gauge*1.2, height], center=true);
-						
-						translate([i*((-gauge*1.2)/2-extra_depth/2), height/2-gauge/2, 0])
-							rotate([0,90,90])
-								cube(size=[wall_thickness, extra_depth, gauge], center=true);
-						
-						if(i==-1)
-						{
-							translate([-(gauge*0.2)/2,-height/2-ZmotorWidth/2,0])
-								rotate([0,0,90])
-									color("blue") cube(size=[ZmotorWidth, gauge, wall_thickness], center=true);
-						}
-						else
-						{
-							translate([-((gauge+40)-gauge*1.2)/2,-height/2-ZmotorWidth/2,0])
-								rotate([0,0,90])
-									color("blue") cube(size=[ZmotorWidth, gauge+40, wall_thickness], center=true);
-						}
-					}
-				}
-				translate([0,height-gauge/2, wall_thickness/2])
-					rotate([90,0,0])
-						color("red") cube(size=[width, wall_thickness, gauge], center=true);
-			}
-			
-			//things to cut out to allow bends
-			translate([0,0,wall_thickness])
+		//bottom motor plate
+		color("blue")
+		translate([net ? 0:i*(width/2-(ZmotorWidth+wall_thickness)/2), net ? i*gauge:0, net ? 0:wall_thickness/2]) 
+			union()
 			{
+				difference()
+				{
+					cube(size=[ZmotorWidth+wall_thickness, gauge, wall_thickness], center=true);
+					translate([(ZmotorWidth+wall_thickness)/2*i, 0, 0])
+						joinery_hack();
+				}
+				
+				//extra bits either side
+				translate([0, 5/2+gauge/2, 0]) 
+					#cube(size=[ZmotorWidth+wall_thickness, 5, wall_thickness], center=true);
+			}
+		
+		//vertical bits
+		color("green")
+		translate([net ? i*(((-gauge-extra_depth)/2)-gauge/2):i*(width/2-wall_thickness/2), 0, net ? 0:height/2])
+			rotate([net ? 0:90, net ? (i==1 ? 0:180):0, net ? (i==1 ? 0:180):(i==1 ? 90:-90)])
 				difference()
 				{
 					union()
 					{
-						translate([0,0,3/2-(3-0.6)]) cube(size=[600,3,3], center=true);
-						translate([0,0,3.171067358]) rotate([45,0,0]) cube(size=[600,10,10], center=true);
+						cube(size=[gauge, height, wall_thickness], center=true);
+						translate([i*(gauge/2+extra_depth/2), height/2-gauge/2, 0])
+							cube(size=[extra_depth, gauge, wall_thickness], center=true);
 					}
-					translate([0,0,3/2-(3-0.6)-3]) cube(size=[601,10,3], center=true);
+					translate([7, -height/2, 0]) 
+						rotate([0, 0, 90])
+							joinery_hack();
+					
+					translate([i*(gauge/2+extra_depth), height/2-14, 0]) 
+						rotate([0, 0, 0])
+							joinery_hack();
 				}
-			}
-			for(i=[1,-1])
-				translate([width/2*i, height-10, wall_thickness])
-				rotate([0,0,90])
-				{
-					difference()
-					{
-						union()
-						{
-							translate([0,0,3/2-(3-0.6)]) cube(size=[100,3,3], center=true);
-							translate([0,0,3.171067358]) rotate([45,0,0]) cube(size=[100,10,10], center=true);
-						}
-						translate([0,0,3/2-(3-0.6)-3]) cube(size=[101,10,3], center=true);
-					}
-				}
+	}
+		
+	//width spanning brace
+	color("red")
+	translate([net ? gauge*2.3:0, net ? (width-height)/2:gauge/2+extra_depth-wall_thickness/2, net ? 0:height-gauge/2])
+		rotate([net ? 0:90, 0, net ? 90:0])
+		difference()
+		{
+			cube(size=[width, gauge, wall_thickness], center=true);
+			for(i=[1,-1]) translate([i*width/2, 0, 0]) 
+				joinery_hack();
 		}
-		translate([-11,130,3/2]) cube(size=[A4_length+5, A4_width+5, 3], center=true); //bed
-		*translate([10.5,51.5,3/2]) cube(size=[420,297,3], center=true); //a3 size sheet
-	 }
-	 echo(str("Item: Dibond Bracing: ",2*(gauge*1.2)+(extra_depth*2)+width, "x",height+ZmotorWidth,"x3 W x D x H"));
+
+	echo(str("Item: Aluminium Sheet: (A3) 420x297x3 W x D x H"));
+}
+
+module joinery_hack()
+{
+	for(i=[-2,-1,0,1,2])
+		translate([0, i*7*2, 0])
+			cube(size=[6, 7, 4], center=true);
 }
 
 /***** the base that the whole rig sits on - the top of this is considered origin (or zero) for the Z axis ****/
