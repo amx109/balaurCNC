@@ -178,7 +178,9 @@ The lower the inductance and the higher the rated current, the higher the torque
 
 http://www.wantmotor.com/ProductsView.asp?id=155&pid=80
 http://www.aliexpress.com/item/CNC-Nema17-for-12VDC-2800g-cm-34mm-length-4-Lead-Wantai-Stepper-Motor/642541669.html
-http://www.aliexpress.com/item/Best-selling-Nema-17-series-hybrid-stepping-motor-42BYGHW213-34mm-12V-0-6A-2000g-cm-5wires/503810268.html
+not this - http://www.aliexpress.com/item/Best-selling-Nema-17-series-hybrid-stepping-motor-42BYGHW213-34mm-12V-0-6A-2000g-cm-5wires/503810268.html
+THESE - http://www.aliexpress.com/store/product/Best-Selling-Wantai-5-PCS-Nema17-Stepper-Motor-42BYGHW208-37oz-in-34mm-0-4A-CE-ROHS/511874_618824335.html
+
 
 http://www.wantmotor.com/ProductsView.asp?id=153&pid=80 - extruder alt?
 
