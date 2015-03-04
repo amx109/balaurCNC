@@ -33,6 +33,8 @@ module FTSU(size, L)
 		color("silver")
 		_FTSU(FTSU16[0], FTSU16[1], FTSU16[2], FTSU16[3], FTSU16[4], FTSU16[5], FTSU16[6], FTSU16[7], FTSU16[8], FTSU16[9], FTSU16[10], L);
 	}
+	
+	echo(str("Item: FTSU supported rail, size: ",size,"mm Length: ",L,"mm"));
 }
 
 module _FTSU(d, A, H, A1, A2, d2, H1, H2, K, C, G, L)
