@@ -33,7 +33,7 @@ folded = 0;
 hinge_open_angle = 86; // Z axis must be at max height
 
 YZaxis_X_position = 0;//-80;
-Yaxis_position = 	105; //-105 for non-y drive end, 105 for y drive end
+Yaxis_position = 	84; //-105 for non-y drive end, 105 for y drive end
 Yaxis_Z_position = 	folded ? 280 : 110; //110 = Z0, maxZ = 219. build height in Z is 219-110 = 109mm
 
 Yaxis_seperation = 56; //mendel90 uses 56mm width for rails
@@ -50,18 +50,20 @@ ZmotorWidth = NEMA_width(nemaTypeZ);
 
 brace_wall_thickness = 3;
 Zfloor = tslot_size+brace_wall_thickness;
-Zheight = 314; //max height of Z axis from Zfloor
+Zheight = case_bottom_int_Y(); //max height of Z axis from Zfloor
 threaded = 0;
 
 echosize("Print height is", Zheight-110);
 
+/************************* render methods *************************/
+
 draw();
+*render_for_milling();
+*render_for_3d_printing();
+
 *x_carriage(113.5, 93);
-*brace(	brace_wall_thickness,
-					case_bottom_int_Y(),
-					Zheight+brace_wall_thickness,
-					NEMA_width(nemaTypeZ), //gauge
-					net=1);
+
+/*****************************************************************/
 
 module draw() /****** built from the bottom up *******/
 {
@@ -89,7 +91,7 @@ module draw() /****** built from the bottom up *******/
 		rotate([0,folding_angle,0])
 		{
 			/********* Y axis **********/
-			*Yaxis();
+			Yaxis();
 			
 			/********* Z axis *********/
 			Zaxis();
@@ -97,12 +99,12 @@ module draw() /****** built from the bottom up *******/
 	}
 	
 	/********* X axis *************/
-	Xaxis();
+	*Xaxis();
 	
 	/**** base for the whole machine - will sit inside the suitcase
 	 **** floor of the machine is the top surface of the base ****/
-	*translate([0,0,-base_height])
-		base(base_height);
+	translate([0,0,-base_height])
+		*base(base_height);
 	
 	/************* suitcase *************/
 	echo(str("Item: Briefcase ",caseX(),"x",caseY(),"x",caseZ()));
@@ -137,10 +139,18 @@ module Xaxis()
 			translate([0, (case_bottom_int_Y()/2)-tslot_size/2, 0])
 			{
 				tslot_centered(case_bottom_int_X(), tslot_size);
-				translate([80, 0, tslot_size]) toggle_clamp();
+				translate([case_bottom_int_X()/2-20,0,tslot_size-5.2])
+					tslot_nut(tslot_size);
+				translate([case_bottom_int_X()/2-150,0,tslot_size-5.2])
+					tslot_nut(tslot_size);
+				translate([case_bottom_int_X()/2-((case_bottom_int_X()-NEMA_width(nemaTypeZ))/2-15)/2, 0, 3/2+tslot_size]) 
+					doobery((case_bottom_int_X()-NEMA_width(nemaTypeZ))/2-15);
+				translate([-NEMA_width(nemaTypeZ)/2-10/2-5,0,brace_wall_thickness/2+tslot_size]) 
+					translate([i==0 ? -NEMA_width(nemaTypeY)-3:0, 0,0])
+						anchor();
 			}
 		
-		// tslot for bracing of x axis, in the y direction 
+		//tslot for bracing of x axis, in the y direction
 		mirror([i,0,0])
 			translate([((case_bottom_int_X())/2)-tslot_size/2, 0, 0])
 				rotate ([0,0,90])
@@ -154,25 +164,29 @@ module Xaxis()
 		rotate([0,90,90])
 			FTSU(12, 380);
 	
-	//motor
-	translate([-case_bottom_int_X()/2+tslot_size+NEMA_width(nemaTypeX)/2,0,NEMA_width(nemaTypeX)/2])
-		rotate([90,0,0])
-			nema_motor(nemaTypeX);
-	
 	//x carriage
-	translate([YZaxis_X_position+bed_X_shift, 0, 0])
+	*translate([YZaxis_X_position+bed_X_shift, 0, 0])
+	{
 		x_carriage(	case_bottom_int_Y()/2-tslot_size-FTSU_height(12),
 					-base_height
 					-(case_bottom_ext_Z()-case_bottom_int_Z())
 					+case_bottom_ext_Z() //all this upto here puts the bed on the lip
 					+7);
 	
-	color("LightCoral")
-			translate([YZaxis_X_position+bed_X_shift,0,
-					-base_height
-					-(case_bottom_ext_Z()-case_bottom_int_Z())
-					+case_bottom_ext_Z() //all this upto here puts the bed on the lip
-					+7+4]) a4Bed(5, bed_height=3);
+		color("LightCoral")
+			translate([	0,
+						0,
+						-base_height
+						-(case_bottom_ext_Z()-case_bottom_int_Z())
+						+case_bottom_ext_Z() //all this upto here puts the bed on the lip
+						+7+4])
+				a4Bed(5, bed_height=3);
+			}
+	
+	//motor
+	translate([-case_bottom_int_X()/2+tslot_size+NEMA_width(nemaTypeX)/2,0,NEMA_width(nemaTypeX)/2])
+		rotate([90,0,0])
+			nema_motor(nemaTypeX);
 	echo("********************** X Axis END *****************************");
 }
 
@@ -188,7 +202,7 @@ module Yaxis()
 	echosize("Y axis length", case_bottom_int_Y()-10);
 	
 	beltBearingX = -Yaxis_seperation/2-8;
-	beltBearingY1 = -(case_bottom_int_Y()/2-7.33);
+	beltBearingY1 = -(case_bottom_int_Y()/2-7.25);
 	beltBearingY2 = -beltBearingY1;
 	beltBearing_dia = 6;
 	
@@ -214,32 +228,33 @@ module Yaxis()
 		translate([0,Yaxis_position,0])
 		{
 			y_carriage(Yaxis_seperation); 
-			color("DarkGray") translate([-12.5,-12.5,-10.5]) import("E3D_Hot_end.stl"); //hotend
+			color("DarkGray")
+				translate([-12.5,-12.5,-10.5])
+					import("E3D_Hot_end.stl"); //hotend
 		}
 		
 		//belt tensioner bearing spindles at either end of Y
 		for(i=[-1,1])
-		{
 			translate([beltBearingX, i*beltBearingY1, -11.3])
 			{
 				translate([0,0,-4]) nut(3); //bottom nut
-				translate([0,0,19]) linear_rod(3, 55, threaded);
+				translate([0,0,19]) linear_rod(3, 60, threaded);
 				translate([0,0,25]) nut(3); //top nut
 				for(i=[0,1,2,3,4]) translate([0,0,27.5+2.5*i+0.1*i]) bearing(6, 3, 2.5, "MR63ZZ"); //MR63ZZ*5
-				translate([0,0,40.5]) nut(3); //top top nut
+				translate([0,0,40.5]) nut(3, nyloc=true); //top top nut
 			}
-		}
 		
 		//middle tensioner before belt returns to y carriage
-		translate([idlerBearingX, idlerBearingY, 24+18/2-0.2]) 
+		translate([idlerBearingX, idlerBearingY, 24]) 
 		{
 			color("silver")
 			intersection()
 			{
 				cube(size=[3,2,18], center=true);
-				translate([0,0,0]) cylinder(d=3, h=18, $fn=50, center=true);
+				cylinder(d=3, h=18, $fn=50, center=true);
 			}
-			for(i=[0,1,2,3,4]) translate([0, 0, -7.7+2.5*i+0.1*i]) bearing(6, 3, 2.5, "MR63ZZ"); //MR63ZZ
+			for(i=[0,1,2,3,4])
+				translate([0, 0, -7.7+2.5*i+0.1*i]) bearing(6, 3, 2.5, "MR63ZZ"); //MR63ZZ
 		}
 		
 		//belts
@@ -274,32 +289,25 @@ module Yaxis()
 			}
 		}
 		
-		//flat plate above bar clamp
+		//flat plate above bar clamp with holder for extra pulley
 		translate([-Yaxis_seperation/2, beltBearingY2, -11.3])
 		{
 			difference() 
 			{
 				color("silver")
-				translate([0, 0, 11.3+9.5]) linear_extrude(height=3) roundedSquare(pos=[Yaxis_seperation/2.5,6.5],r=3); //width=22.4
-				//TODO bolt holes
+				//translate([0, 0, 11.3+9.5]) linear_extrude(height=3) roundedSquare(pos=[Yaxis_seperation/2.5,6.5],r=3); //width=22.4
+				translate([0, 0, 11.3+9.5+3/2]) roundRect([Yaxis_seperation/2.5, 6.5, 3], 3); //width=22.4
 			}
 		}
 		
 		//bottom brace for z carraige at y drive end
-		translate([0, beltBearingY2, -15.5]) cube(size=[78,6.7,3], center=true);
+		//translate([0, beltBearingY2, -15.5]) linear_extrude(height=3) roundedSquare(pos=[78, 6.7],r=3);
+		translate([0, beltBearingY2, -15.5+3/2]) roundRect([78, 6.7, 3], 3);
 	}
 	
 	//y drive (vertical) bits
 	translate([-NEMA_width(nemaTypeY)-3, case_bottom_int_Y()/2-NEMA_width(nemaTypeY)/2-brace_wall_thickness, Zfloor+NEMA_length(nemaTypeY)])
 	{
-		nema_motor(nemaTypeY);
-		
-		translate([0, 0, (Zheight-NEMA_length(nemaTypeY)-NEMA_shaft_length(nemaTypeY))/2+NEMA_shaft_length(nemaTypeY)+1])
-			SRSS_rod(6, Zheight-NEMA_length(nemaTypeY)-NEMA_shaft_length(nemaTypeY));
-		
-		translate([0,0,32/2+NEMA_boss_height(nemaTypeY)+5])
-			color("silver") cylinder(d=10, h=32, $fn=50, center=true); //coupler
-		
 		translate([0,0, Yaxis_Z_position-Zfloor-NEMA_length(nemaTypeY)+32.5])
 		{
 			rotate([0,0,0]) 
@@ -309,6 +317,14 @@ module Yaxis()
 				translate([0,0,-6.4-16]) rotate([0,0,0]) gt2_small(); //GT2_16
 			}
 		}
+		
+		translate([0, 0, (Zheight-NEMA_length(nemaTypeY)-NEMA_shaft_length(nemaTypeY))/2+NEMA_shaft_length(nemaTypeY)+1])
+			SRSS_rod(6, Zheight-NEMA_length(nemaTypeY)-NEMA_shaft_length(nemaTypeY)); //spline shaft
+		
+		translate([0,0,32/2+NEMA_boss_height(nemaTypeY)+5])
+			color("silver") cylinder(d=10, h=32, $fn=50, center=true); //coupler
+		
+		nema_motor(nemaTypeY); //stepper
 	}
 	echo("********************** Y Axis END *****************************");
 }
@@ -330,31 +346,31 @@ module Zaxis()
 	*/
 	threaded_rod_dia = 5.9;
 	threaded_rod_length = Zheight-NEMA_length(nemaTypeZ)-NEMA_boss_height(nemaTypeZ);
+	Z_bearing_type = "LM8";
 	
-	rod_dia = 8;
+	rod_dia = LM_rod_dia(Z_bearing_type);
 	rodX = 0;
-	rodYoffset = brace_wall_thickness+LM8_dia()/2+1; //distance of centre of rod from outside face of brace wall
+	rodYoffset = brace_wall_thickness+LM_dia(Z_bearing_type)/2+1; //distance of centre of rod from outside face of brace wall
 	rodY = case_bottom_int_Y()/2-rodYoffset;
 	// in this layout the central smooth rod will be the centreline for the z axis
 	// there was regret. we only mirror z lifty bit now
 	
 	//bracing for Y/Z
 	echo(str("*************** Bracing    *******************"));
-	color("SteelBlue")
+	*color("silver")
 	translate([0, 0, Zfloor-brace_wall_thickness]) 
-		rotate([0,0,90]) 
+		rotate([0,0,90])
 			brace(	brace_wall_thickness,
 					case_bottom_int_Y(),
-					Zheight+brace_wall_thickness,
+					Zheight,
 					NEMA_width(nemaTypeZ), //gauge
 					net=false);
 	
 	echo(str("*************** Z lifty bit ******************"));
-	*for(i=[1,-1])
+	for(i=[1,-1])
 	{
 		translate([0, i*rodY, Zfloor])
 		{
-			//translate([0, i*(-22/2-4), NEMA_length(nemaTypeZ)])
 			translate([0, i*-15, NEMA_length(nemaTypeZ)])
 			{
 				nema_motor(nemaTypeZ); //stepper
@@ -379,17 +395,17 @@ module Zaxis()
 				
 			//z_carriage
 			translate([0, 0, Yaxis_Z_position+17.4-Zfloor])
-				rotate([0,0,i==1 ? 180 : 0]) 
-					z_carriage(LM8_dia(), LM8_length(), Yaxis_seperation);
+				mirror([0,i==1?1:0,0])
+					z_carriage(Z_bearing_type, Yaxis_seperation);
 		}
 	}
 	
-	echo(str("*************** Z bar clamps ****************"));
+	echo(str("*************** Z bar clamps (top) ****************"));
 	for(i=[1,0])
 	{
 		mirror([0,i,0])
 		{
-			//z bar clamp
+			//top z bar clamp
 			translate([0, -rodY, Zfloor+Zheight-5/2])
 			{
 				color("MediumSeaGreen")
@@ -486,7 +502,7 @@ module motor_mount_plate(ZrodYoffset)
 		for(i=[1,-1])
 			for(j=[1,-1])
 					translate([i*NEMA_hole_pitch(nemaTypeZ)/2,j*NEMA_hole_pitch(nemaTypeZ)/2,0])
-						cylinder(d=3, h=10, $fn=50, center=true);
+						cylinder(d=3, h=10, $fn=50, center=true); //screw holes
 	}
 	
 	//screws for stepper
@@ -495,7 +511,7 @@ module motor_mount_plate(ZrodYoffset)
 				translate([i*NEMA_hole_pitch(nemaTypeZ)/2,j*NEMA_hole_pitch(nemaTypeZ)/2,plate_height+1])
 				{
 					translate([0,0,-0.5]) washer(3);
-					bolt(3,5+plate_height);
+						bolt(M=3,length=4+plate_height);
 				}
 	
 	//brace wall screws+nuts
@@ -504,7 +520,8 @@ module motor_mount_plate(ZrodYoffset)
 			rotate([-90,0,0])
 			{
 				bolt(5,10, csk=true);
-				translate([0,0,-5]) nut(5);
+				translate([0,0,-5])
+					nut(5);
 			}
 }
 
@@ -524,7 +541,7 @@ module brace(wall_thickness, width, height, gauge, net=false)
 	*translate([0, 0, 0]) rotate([0,0,90]) color("black")cube(size=[420, 297, 1], center=true); //A3
 	*translate([0, 0, 0]) rotate([0,0,90]) color("black")cube(size=[A4_length, A4_width, 1], center=true); //A4
 	
-	extra_depth = 14.5; //in -ve X axis of the horizontal brace bar for the vertical sections
+	extra_depth = 14.5+20; //in -ve X axis of the horizontal brace bar for the vertical sections
 	
 	//render()
 	for(i=[1,-1])
@@ -541,9 +558,18 @@ module brace(wall_thickness, width, height, gauge, net=false)
 						joinery_hack();
 				}
 				
-				//extra bits either side
-				translate([0, 5/2+gauge/2, 0]) 
-					#cube(size=[ZmotorWidth+wall_thickness, 5, wall_thickness], center=true);
+				if(i==1) //only want this on one side
+					translate([0, gauge/2+(NEMA_width(nemaTypeY)+3)/2, 0])
+						cube(size=[ZmotorWidth+wall_thickness, NEMA_width(nemaTypeY)+3, wall_thickness], center=true); //platform for y drive stepper
+				
+				translate([i*(ZmotorWidth+wall_thickness-tslot_size)/2, 0, 0])
+				{
+					translate([0, (gauge/2+5/2)+(i==1? NEMA_width(nemaTypeY)+3:0), 0])
+						cube(size=[tslot_size, 5, wall_thickness], center=true); //rear anchor section
+					
+					translate([0, -15/2-gauge/2, 0])
+						cube(size=[tslot_size, 15, wall_thickness], center=true); //clamp section
+				}
 			}
 		
 		//vertical bits
@@ -595,7 +621,8 @@ module base(base_height)
 	//bottom of the base is z=0
 	echo(str("Item: Dibond baseboard: ",case_bottom_int_X(),"x",case_bottom_int_Y(),"x",base_height," W x D x H"));
 	color("GhostWhite")
-		linear_extrude(height = base_height) roundedSquare(pos=[case_bottom_int_X(),case_bottom_int_Y()], r=base_height);
+		//linear_extrude(height = base_height) roundedSquare(pos=[case_bottom_int_X(),case_bottom_int_Y()], r=base_height);
+		translate([0,0,base_height/2]) roundRect([case_bottom_int_X(), case_bottom_int_Y(), base_height], base_height);
 }
 
 module a4Bed(padding, bed_height) //padding in addition to a4 size
@@ -609,7 +636,47 @@ module a4Bed(padding, bed_height) //padding in addition to a4 size
 module tslot_centered(length, size)
 {
 	echo(str("Item: T-Slot size ", size, "mm Length: ", length, "mm"));
-	translate([0,0,size/2]) rotate([0,90,0]) tslot(size=size, length=length, gap=8);
+	translate([0,0,size/2]) rotate([0,90,0]) tslot(size=size, length=length, gap=6.2);
+}
+
+module tslot_nut(size)
+{
+	echo(str("Item: T-Slot nut ", size, "mm"));
+	translate([0,0,0]) rotate([0,0,0]) tslot(size=size, length=length, gap=6.2, nut=true, length=20);
+}
+
+module doobery(length, net=false)
+{
+	difference()
+	{
+		cube(size=[length,tslot_size,brace_wall_thickness], center=true);
+		translate([length/2-20, 0, 0])
+			cylinder(d=5, h=10, $fn=50, center=true);
+	}
+	translate([25-length/2,0,3/2])
+		toggle_clamp();
+}
+
+module anchor(net=false)
+{
+	cube(size=[10, tslot_size, brace_wall_thickness], center=true);
+	translate([(11-10)/2,0,brace_wall_thickness])
+		cube(size=[11, tslot_size, brace_wall_thickness], center=true);
+}
+
+module render_for_milling()
+{
+	brace(	brace_wall_thickness,
+			case_bottom_int_Y(),
+			Zheight,
+			NEMA_width(nemaTypeZ), //gauge
+			net=1);
+	
+}
+
+module render_for_3d_printing()
+{
+	
 }
 
 module echosize(name, size)
