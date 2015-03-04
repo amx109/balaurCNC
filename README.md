@@ -40,8 +40,7 @@ Finally, due to the multi-use nature of the device, one design constraint seems 
 
 ### Design Refinements
 
-* Y folds down flat
-*
+* X folds down flat
 
 
 
@@ -146,9 +145,6 @@ http://www.engineersedge.com/beam_bending/calculators_protected/beam_deflection_
 
 choose gt2 - http://forums.reprap.org/read.php?14,419336
 Brecoflex?
-## hinged X axis
-
-### hinge
 
 
 
@@ -192,8 +188,10 @@ http://www.openbuilds.com/threads/new-build-5-controller-cam-options-your-opinio
 
 #Pricing
 
-30mm t-slot alu extrusion 2N 90		- £7.97 per m - http://www.valuframe.co.uk/Series-8X30-Aluminium-Profiles.html
-20mm x 40mm v-slot alu extrusion	- £8.13 per m
+30mm t-slot alu extrusion 1N 		- £7.97 per m - http://www.valuframe.co.uk/Series-6-Aluminium-Profiles.html
+30mm t-slot alu extrusion   		- £7.97 per m - http://www.valuframe.co.uk/Series-6-Aluminium-Profiles.html
+30mm t-slot alu extrusion   		- £7.97 per m - http://aluminium-profile.co.uk
+
 
 #print quality
 I have come to realise that you get better prints if you do the outlines at the same speed as the infill and looking back I think that is what I have seen commercial machines do
@@ -202,3 +200,6 @@ http://www.thingiverse.com/thing:31234
 
 #calculations
 http://forums.reprap.org/read.php?160,330608,330819#msg-330819 - motor torque/distanced travelled
+
+
+http://stores.ebay.co.uk/Falcon-Workshop-Supplies/
