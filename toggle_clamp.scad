@@ -54,6 +54,7 @@ module toggle_clamp()
 	translate([-17.5-(23.8/2), 0, 6/2]) 
 		cylinder(d1=4, d2=8, h=6, $fn=50, center=true);
 		
+	echo(str("Item: Toggle Clamp (27Kg)"));
 }
 
 toggle_clamp();
