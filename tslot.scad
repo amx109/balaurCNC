@@ -12,27 +12,46 @@ module tslot(
 ){
 	start=thickness/sqrt(2);
 	if(nut){
-		linear_extrude(height=10)
-		intersection(){
-			polygon([[size/2-gap/2,0],[size/2-gap/2,thickness],[thickness+start,thickness],[size/2,size/2-2],[size-thickness-start,thickness],[size/2+gap/2,thickness],[size/2+gap/2,0]]);
-			square([size,size/2-(gap+thickness)/2]);
+		
+		difference()
+		{
+			rotate([-90,0,90])
+			translate([-size/2,-(size/2-(gap+thickness)/2)/2,-length/2]) 
+			linear_extrude(height=length)
+				intersection(){
+					polygon([	[size/2-gap/2,0],
+								[size/2-gap/2,thickness],
+								[thickness+start,thickness],
+								[size/2,size/2-2],
+								[size-thickness-start,thickness],
+								[size/2+gap/2,thickness],
+								[size/2+gap/2,0]]);
+					square([size,size/2-(gap+thickness)/2]);
+				}
+			translate([length/4,0,0]) cylinder(d=5, h=length+2, $fn=50, center=true);
 		}
 	}	
 	else{
 		color([0.5,0.5,0.5])
 		translate([0,0,-length/2])
-		linear_extrude(height=length,center=center)
-		difference(){
-			union(){
-				for(d=[0:3]) rotate([0,0,d*90]) polygon(points=[
-					[0,0],
-					[0,start],[size/2-thickness-start,size/2-thickness],[gap/2,size/2-thickness],[gap/2,size/2],
-					[size/2,size/2],[size/2,gap/2],[size/2-thickness,gap/2],[size/2-thickness,size/2-thickness-start],[start,0]
-				]);
-				square(gap+thickness,center=true);
-			}
-			circle(r=gap/2,center=true);
-		}
+			linear_extrude(height=length,center=center)
+				difference(){
+					union(){
+						for(d=[0:3]) rotate([0,0,d*90]) polygon(points=[
+							[0,0],
+							[0,start],
+							[size/2-thickness-start,size/2-thickness],
+							[gap/2,size/2-thickness],[gap/2,size/2],
+							[size/2,size/2],
+							[size/2,gap/2],
+							[size/2-thickness,gap/2],
+							[size/2-thickness,size/2-thickness-start],
+							[start,0]
+						]);
+						square(gap+thickness,center=true);
+					}
+					circle(r=gap/2,center=true);
+				}
 	}
 }
 module tslot20(length,nut){
