@@ -14,33 +14,37 @@ LM8L = [8, 0, 16, 0, 46, 0, 33, 0, 15.2, 0];
 LM10 = [10, 0, 19, 0, 29, 0, 22, 0, 18, 1.3];
 LM10L = [10, 0, 19, 0, 46, 0, 33, 0, 15.2, 0];
 
-function LM8_length() = LM8[4];
-function LM8_dia() = LM8[2];
+function LM_rod_dia(type) 	= type == "LM8" ? LM8[0] : undef;
+function LM_dia(type) 		= type == "LM8" ? LM8[2] : undef;
+function LM_length(type) 	= type == "LM8" ? LM8[4] : undef;
 
 module LM(size)
 {
 	echo(str("Item: LM",size,"UU bushing"));
 	
-	if (size == 8)
-	{
-		_LM(LM8[0], LM8[1], LM8[2], LM8[3], LM8[4], LM8[5], LM8[6], LM8[7], LM8[8], LM8[9]);
-	}
-	if (size == "8L")
-	{
-		_LM(LM8L[0], LM8L[1], LM8L[2], LM8L[3], LM8L[4], LM8L[5], LM8L[6], LM8L[7], LM8L[8], LM8L[9]);
-	}
-	if (size == 10)
-	{
-		_LM(LM10[0], LM10[1], LM10[2], LM10[3], LM10[4], LM10[5], LM10[6], LM10[7], LM10[8], LM10[9]);
-	}
-	if (size == "10L")
-	{
-		_LM(LM10L[0], LM10L[1], LM10L[2], LM10L[3], LM10L[4], LM10L[5], LM10L[6], LM10L[7], LM10L[8], LM10L[9]);
-	}
+	if (size == "LM8")
+		_LM(LM8);
+	if (size == "LM8L")
+		_LM(LM8L);
+	if (size == "LM10")
+		_LM(LM10);
+	if (size == "LM10L")
+		_LM(LM10L);
 }
 
-module _LM(dr, tolerancedr, D, toleranceD, L, toleranceL, B, toleranceB, D1, W)
+module _LM(dims)
 {
+	dr = dims[0];
+	tolerancedr = dims[1];
+	D = dims[2];
+	toleranceD = dims[3];
+	L = dims[4];
+	toleranceL = dims[5];
+	B = dims[6];
+	toleranceB = dims[7];
+	D1 = dims[8];
+	W = dims[9];
+	
 	color("Silver")
 	{
 		difference()
@@ -52,4 +56,5 @@ module _LM(dr, tolerancedr, D, toleranceD, L, toleranceL, B, toleranceB, D1, W)
 }
 
 //uncomment to display
-//LM(8);
+LM("LM8");
+

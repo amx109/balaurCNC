@@ -1,7 +1,6 @@
 use <ironmongery.scad>
 use <LM__UUOP.scad>
-use <MCAD/2Dshapes.scad>
-use <pullies.scad>
+
 
 display = true;
 y_carriage(56);
@@ -9,11 +8,10 @@ y_carriage(56);
 module y_carriage(Yaxis_seperation)
 {
 	echo(str("*************** Y Carriage *******************"));
-	//echosize("Y carriage length", 10);
-	//echosize("Y carriage bearing holders inner diameter", LM8OP_dia());
 	
-	Ycarriage_length = LM8OP_length()*3+12;
-	Ycarriage_width = Yaxis_seperation+LM8OP_dia();
+	bearing_type = "LM8";
+	Ycarriage_length = LMOP_length(bearing_type)*3+12;
+	Ycarriage_width = Yaxis_seperation+LMOP_dia(bearing_type);
 	mounting_plate_thickness = 3;
 	
 	difference()
@@ -27,9 +25,9 @@ module y_carriage(Yaxis_seperation)
 				difference()
 				{
 					translate([i*Yaxis_seperation/2,0,0]) rotate([90,0,0])
-						cylinder(h=Ycarriage_length, d=LM8OP_dia()+4.15, $fn=50, center=true); //tube 19.15mm (3/4 inch) OD x 15mm ID x 2.032mm (14 SWG) )wall
+						cylinder(h=Ycarriage_length, d=LMOP_dia(bearing_type)+4.15, $fn=50, center=true); //tube 19.15mm (3/4 inch) OD x 15mm ID x 2.032mm (14 SWG) )wall
 					translate([i*Yaxis_seperation/2,0.1,0]) rotate([90,0,0])
-						cylinder(h=Ycarriage_length+1, d=LM8OP_dia(), $fn=50, center=true); //inner diameter hole
+						cylinder(h=Ycarriage_length+1, d=LMOP_dia(bearing_type), $fn=50, center=true); //inner diameter hole
 					translate([0,0,3+19.15/2-0.5])
 						cube(size=[Ycarriage_width*2,Ycarriage_length+1,6], center=true); //top 0.5 cut off
 					translate([0,0,-7])
@@ -41,21 +39,22 @@ module y_carriage(Yaxis_seperation)
 				{
 					for(j=[1,-1])
 					{
-						translate([i*(Yaxis_seperation/2),j*(LM8OP_length()+6),0])
+						translate([i*(Yaxis_seperation/2),j*(LMOP_length(bearing_type)+6),0])
 							rotate([90,0,0])
-								LMOP(8);
+								LMOP(bearing_type);
 					}
 				}
 			}
 			
 			//mounting plate
 			color("Gainsboro")
-			translate([0,0,(LM8OP_dia()+4.15)/2-0.5])
+			translate([0,0,(LMOP_dia(bearing_type)+4.15)/2-0.5])
 			{
 				difference()
 				{
 					//the mounting plate
-					linear_extrude(height=mounting_plate_thickness) roundedSquare(pos=[Ycarriage_width, Ycarriage_length], r=3);
+					//linear_extrude(height=mounting_plate_thickness) roundedSquare(pos=[Ycarriage_width, Ycarriage_length], r=3);
+					translate([0,0,mounting_plate_thickness/2]) roundRect([Ycarriage_width, Ycarriage_length, mounting_plate_thickness], 3);
 					
 					// bits we cut out to make it light and usable
 					for(i=[1,-1])

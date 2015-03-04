@@ -14,43 +14,38 @@ LM8UUOP =  [8,  15, 24, 17.5, 14.3, 1.1, 1, 6.8, 80]; // opening angle+gap info 
 LM12UUOP = [12, 22, 32, 22.9, 21,   1.3, 1, 8, 78];
 LM16UUOP = [16, 26, 36, 24.9, 24.9, 1.3, 1, 10.8, 78];
 
-function LM8OP_length() = LM8UUOP[2];
-function LM8OP_dia() = LM8UUOP[1];
-
-function LM12OP_length() = LM12UUOP[2];
-function LM12OP_dia() = LM12UUOP[1];
-
-function LM16OP_length() = LM16UUOP[2];
-function LM16OP_dia() = LM16UUOP[1];
+function LMOP_dia(type)			= type == "LM8" ? LM8UUOP[1] : type == "LM12" ? LM12UUOP[1] : type == "LM16" ? LM12UUOP[1] : undef;
+function LMOP_length(type)	= type == "LM8" ? LM8UUOP[2] : type == "LM12" ? LM12UUOP[2] : type == "LM16" ? LM12UUOP[2] : undef;
 
 module LMOP(size)
 {
 	echo(str("Item: LM",size,"OPUU bushing"));
-	if (size == 8)
-	{
-		_LM__UUOP(LM8UUOP[0], LM8UUOP[1], LM8UUOP[2], LM8UUOP[3], LM8UUOP[4], LM8UUOP[5], LM8UUOP[6], LM8UUOP[7], LM8UUOP[8]);
-	}
-	if (size == 12)
-	{
-		_LM__UUOP(LM12UUOP[0], LM12UUOP[1], LM12UUOP[2], LM12UUOP[3], LM12UUOP[4], LM12UUOP[5], LM12UUOP[6], LM12UUOP[7], LM12UUOP[8]);
-	}
-	if (size == 16)
-	{
-		_LM__UUOP(LM16UUOP[0], LM16UUOP[1], LM16UUOP[2], LM16UUOP[3], LM16UUOP[4], LM16UUOP[5], LM16UUOP[6], LM16UUOP[7], LM16UUOP[8]);
-	}
+	
+	if (size == "LM8") _LM__UUOP(LM8UUOP);
+	if (size == "LM12") _LM__UUOP(LM12UUOP);
+	if (size == "LM16") _LM__UUOP(LM16UUOP);
 }
 
 module LMOP_oversize(size)
 {
+	dims8_oversize = LM8UUOP+[0,0,0,0,0,0,0,-1,-20];
 	//match bearing based on bearing outer dia
-	if (size == 15) //then is an LM8
-	{
-		_LM__UUOP(LM8UUOP[0], LM8UUOP[1], LM8UUOP[2], LM8UUOP[3], LM8UUOP[4], LM8UUOP[5], LM8UUOP[6], LM8UUOP[7]-1, LM8UUOP[8]-20);
-	}
+	if (size == "LM8") //then is an LM8
+		_LM__UUOP(dims8_oversize);
 }
 
-module _LM__UUOP(dr, D, L, B, D1, W, F, E, angle)
+module _LM__UUOP(dims)
 {
+	dr = dims[0];
+	D = dims[1];
+	L = dims[2];
+	B = dims[3];
+	D1 = dims[4];
+	W = dims[5];
+	F = dims[6];
+	E = dims[7];
+	angle = dims[8];
+	
 	// side length of isosceles triangle is 30
 	// use lots of trig - use half the isos tri (gives us a anice right angle triangle to work with)
 	xlen = ( sin(angle/2) / (sin(90)/30) )*2;
@@ -81,5 +76,5 @@ module _LM__UUOP(dr, D, L, B, D1, W, F, E, angle)
 }
 
 //uncomment to display
-LMOP(16);
-//LMOP_oversize(15);
+LMOP("LM8");
+translate([30,0,0]) LMOP_oversize("LM8");

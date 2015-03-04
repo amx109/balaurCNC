@@ -24,6 +24,7 @@ module x_carriage(width, height)
 		*color("LightCoral")
 			translate([0,0,3]) a4Bed(padding, bed_height=3);
 		
+		//carriage with holes
 		*color("silver")
 		difference()
 		{
@@ -36,13 +37,15 @@ module x_carriage(width, height)
 						cylinder(d=hole_size, h=10, $fn=50, center=true);
 		}
 		
+		//carriage with swooshy curves
 		color("silver")
 		union()
 		{
+			//our carriage wont have the additional padding
 			difference()
 			{
-				cube(size=[A4_length+padding, A4_width+padding, 4], center=true);
-				cube(size=[A4_length+padding-50, A4_width+padding-50, 5], center=true);
+				cube(size=[A4_length, A4_width, 4], center=true);
+				cube(size=[A4_length-50, A4_width-50, 5], center=true);
 			}
 			
 			for(i=[0,1])
@@ -70,6 +73,7 @@ module x_carriage(width, height)
 		}
 	}
 	
+	// bearings, plates etc
 	for(i=[0,1])
 	mirror([0,i,0])
 	translate([A4_length/2-bearing_holder_length/2-109, -width, 15])
@@ -82,7 +86,7 @@ module x_carriage(width, height)
 			translate([0,0,0]) rotate([90,0,0])
 				cylinder(h=bearing_holder_length, d=28.6, $fn=50, center=true); //tube 28.6mm (1 1/8 inch) OD x 22mm ID 3.3mm wall
 			translate([0,0.1,0]) rotate([90,0,0])
-				cylinder(h=bearing_holder_length+1, d=LM12OP_dia(), $fn=50, center=true); //inner hole
+				cylinder(h=bearing_holder_length+1, d=LMOP_dia("LM12"), $fn=50, center=true); //inner hole
 			translate([0,0,-12])
 				cube(size=[50,150+1,10], center=true); //top bit cut off
 			translate([0,0,5+14.3-0.5])
@@ -92,7 +96,7 @@ module x_carriage(width, height)
 			for(i=[1,-1])
 			{
 				//holes for the M3 frame bolts
-				translate([0,i*(bearing_holder_length/2-LM12OP_length()/2),11])
+				translate([0,i*(bearing_holder_length/2-LMOP_length("LM12")/2),11])
 				{
 					translate([0,0,5]) cylinder(r=4/2, h=10, $fn=50, center=true);
 					translate([0,0,0.9]) cylinder(r1=4, r2=4/2, h=4*0.6, $fn=50, center=true);
@@ -115,10 +119,10 @@ module x_carriage(width, height)
 			
 			//alu angle to connect to the carriage
 			rotate([0,90,90])
-				l_bracket(20, A4_length+padding, 3);
+				l_bracket(20, A4_length, 3);
 			
 			for(i=[1,-1])
-				translate([((A4_length+padding)/2-90/2+0.1)*i,0,-1.5-0.1])
+				translate([((A4_length)/2-90/2+0.1)*i,0,-1.5-0.1])
 					cube(size=[90,10,17+0.2], center=true);
 		}	
 		
@@ -127,9 +131,9 @@ module x_carriage(width, height)
 			//bearings, for show
 			for(i=[1,-1])
 			{
-				translate([i*(bearing_holder_length/2-(LM12OP_length()/2)),0,0])
+				translate([i*(bearing_holder_length/2-(LMOP_length("LM12")/2)),0,0])
 					rotate([0,90,0])
-						LMOP(12);
+						LMOP("LM12");
 			}
 			
 			for(i=[1,-1])
@@ -137,7 +141,7 @@ module x_carriage(width, height)
 				//M3 frame bolts
 				rotate([0,90,90])
 				mirror([0,0,1])
-				translate([0,i*(bearing_holder_length/2-LM12OP_length()/2),-13.4])
+				translate([0,i*(bearing_holder_length/2-LMOP_length("LM12")/2),-13.4])
 				{
 					bolt(4,10,csk=true);
 				}
