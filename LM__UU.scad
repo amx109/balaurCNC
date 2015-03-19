@@ -14,9 +14,9 @@ LM8L = [8, 0, 16, 0, 46, 0, 33, 0, 15.2, 0];
 LM10 = [10, 0, 19, 0, 29, 0, 22, 0, 18, 1.3];
 LM10L = [10, 0, 19, 0, 46, 0, 33, 0, 15.2, 0];
 
-function LM_rod_dia(type) 	= type == "LM8" ? LM8[0] : undef;
-function LM_dia(type) 		= type == "LM8" ? LM8[2] : undef;
-function LM_length(type) 	= type == "LM8" ? LM8[4] : undef;
+function LM_rod_dia(type) 	= type == "LM8" ? LM8[0] : type == "LM10" ? LM10[0] : undef;
+function LM_dia(type) 		= type == "LM8" ? LM8[2] : type == "LM10" ? LM10[2] : undef;
+function LM_length(type) 	= type == "LM8" ? LM8[4] : type == "LM10" ? LM10[4] : undef;
 
 module LM(size)
 {

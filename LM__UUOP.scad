@@ -6,7 +6,7 @@
  * 
  * currently only has info to produce LM8UU bearings
  */
-use <MCAD/libtriangles.scad>
+use <ironmongery.scad>
 
 $fn=50;
 
@@ -14,7 +14,7 @@ LM8UUOP =  [8,  15, 24, 17.5, 14.3, 1.1, 1, 6.8, 80]; // opening angle+gap info 
 LM12UUOP = [12, 22, 32, 22.9, 21,   1.3, 1, 8, 78];
 LM16UUOP = [16, 26, 36, 24.9, 24.9, 1.3, 1, 10.8, 78];
 
-function LMOP_dia(type)			= type == "LM8" ? LM8UUOP[1] : type == "LM12" ? LM12UUOP[1] : type == "LM16" ? LM12UUOP[1] : undef;
+function LMOP_dia(type)		= type == "LM8" ? LM8UUOP[1] : type == "LM12" ? LM12UUOP[1] : type == "LM16" ? LM12UUOP[1] : undef;
 function LMOP_length(type)	= type == "LM8" ? LM8UUOP[2] : type == "LM12" ? LM12UUOP[2] : type == "LM16" ? LM12UUOP[2] : undef;
 
 module LMOP(size)
