@@ -4,6 +4,7 @@ module fillet(x, y, z)
 {
 	r = x>z ? (x*x)/(2*z) + (z*z)/(2*z) : (z*z)/(2*x) + (x*x)/(2*x);
 	
+	render()
 	difference()
 	{
 		translate([x/2,0,z/2]) cube(size=[x, y, z], center=true);
@@ -13,11 +14,11 @@ module fillet(x, y, z)
 
 module linear_rod(diameter, length, threaded=false)
 {
-	
 	echo(str("Item: ", threaded ? "Threaded" : "Linear", " Rod ", diameter, "mm ",length, "mm"));
-	
 	pitch = diameter/6;
-	color("LightGrey") 
+	
+	color("LightGrey")
+	render()
 	if(threaded)
 	{
 		linear_extrude(height = length, center = true, convexity = 10, twist = -360 * length / pitch, $fn = fn)
@@ -37,6 +38,7 @@ module bearing(OD, ID, height, description=-1)
 	screwsize = ID;
 	
 	color("silver")
+	render()
 	union()
 	{
 		difference()
@@ -65,6 +67,7 @@ module nut(M, washer=false, flat=false, nyloc=false)
 	nutdiameter = 1.9 * M;
 	
 	color("Silver")
+	render()
 	translate([0,0,washer? (0.2*M)/2 : 0])
 	{
 		intersection()
@@ -88,6 +91,7 @@ module washer(M, dia=-1)
 	washersize = 0.2 * M;
 	
 	color("silver")
+	render()
 	difference()
 	{
 		cylinder(r = washerdiameter/2, h = washersize, center = true, $fn = fn);
@@ -102,6 +106,7 @@ module bolt(M, length, csk=false, threaded=false, mould=false)
 	pitch = M/6;
 	
 	color("silver")
+	render()
 	union()
 	{
 		translate([0, 0, -length/2])
@@ -134,6 +139,7 @@ module l_bracket(width, length, thickness)
 {
 	echo(str("Item: L angle "+width+"mm wide, thickness "+thickness+"mm, length "+length+"mm"));
 	color("silver")
+	render(convexity = 3)
 	difference()
 	{
 		union()
@@ -150,6 +156,7 @@ module l_bracket(width, length, thickness)
 
 module roundRect(size, corner_radius)
 {
+	render()
 	hull()
 	{
 		for(i=[-1,1])
@@ -158,4 +165,17 @@ module roundRect(size, corner_radius)
 					cylinder(d=corner_radius, h=size[2], $fn=50, center=true);
 		cube(size=[size[0]/2,size[1]/2,size[2]], center=true);
 	}
+}
+
+//lifted from MCAD because prisms are ironmongery too, ok?
+module eqlprism(rightprismx,rightprismy,rightprismz)
+{
+	polyhedron(points = [[0,0,0],
+						[rightprismx,0,0],
+						[rightprismx,rightprismy,0],
+						[0,rightprismy,0],
+						[rightprismx/2,rightprismy,rightprismz],
+						[rightprismx/2,0,rightprismz]] ,
+				faces = [[0,1,2,3],[5,1,0],[5,4,2,1],[4,3,2],[0,3,4,5]]
+				);
 }
