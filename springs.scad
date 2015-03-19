@@ -60,10 +60,7 @@ module coil(r1 = 100, r2 = 10, h = 100, twists)
 module comp_spring(type, l = 0) {
     l = (l == 0) ? spring_length(type) : l;
 
-    //vitamin(str("SPR", spring_od(type), spring_gauge(type) * 100, type[2],
-                //": Spring ", spring_od(type), "mm OD, ", spring_gauge(type), "mm gauge x ", spring_length(type), "mm long" ));
-
-    color("silver") //render()
+    color("silver") render()
         coil(r1 = (spring_od(type) - spring_gauge(type)) / 2, r2 = spring_gauge(type) / 2, h = l, twists = spring_coils(type));
 
     if($children)
@@ -79,12 +76,13 @@ module spring(spring_od, spring_gauge, spring_length, spring_coils)
 
 module thread(thread_dia, thread_guage, thread_length, thread_pitch)
 {
+	color("silver")
 	union()
 	{
-		cylinder(d=thread_dia-(thread_pitch/2), h=thread_length, center=true);
+		render() cylinder(d=thread_dia-(thread_pitch/2), h=thread_length, center=true);
 		spring(thread_dia, thread_guage, thread_length, thread_pitch*thread_length);
 	}
 }
 
-spring(9/16*25.4, 0.5, 9.53, 25.4/20*9.53); // imperial 9/16 thread with 20 threads per inch
+*spring(9/16*25.4, 0.5, 9.53, 25.4/20*9.53); // imperial 9/16 thread with 20 threads per inch
 translate([0,0,-20]) thread(9/16*25.4, 0.5, 9.53, 25.4/20);
