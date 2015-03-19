@@ -1,5 +1,3 @@
-include <MCAD/nuts_and_bolts.scad>
-
 M4 = 4;
 $fn=50;
 
@@ -21,7 +19,7 @@ module egh_ca_(H,H1,N,W,B,B1,C,L1,L,K1,G,M,l,T,H2,H3,Wr,Hr,D,h,d,P,E)
 		//mounting holes
 		for(i=[1 : 4])
 		{
-			rotate([180,0,i*90]) translate([B/2,C/2,-l-(((H-H1)/2)-l)-0.1])  boltHole(size=M, length=l);
+			rotate([180,0,i*90]) translate([B/2,C/2,-l-(((H-H1)/2)-l)-0.1])  cylinder(d=M, h=1, $fn=50, center=true);
 		}
 	}
 	

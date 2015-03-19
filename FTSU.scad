@@ -8,7 +8,7 @@
  */
 
 use <LM__UUOP.scad>
-use <MCAD/libtriangles.scad>
+use <ironmongery.scad>
 
 M4 = 4;
 M5 = 5;
