@@ -8,7 +8,7 @@
  * 
  * 
  */
-use <MCAD/gears.scad>
+use <gears.scad>
 use <springs.scad>
 
 $fn=50;
@@ -17,52 +17,37 @@ SRSS__3 = [	3.18, 9.53, 	12.7, 2.41, (3/8)*25.4, 	24, 6.35];
 SRSS__6 = [	6.35, 12.70, 	19.1, 5.13, (7/16)*25.4, 	20, 6.35];
 SRSS__10 = [9.53, 15.88, 	25.4, 7.77, (9/16)*25.4, 	20, 9.53]; // 9⁄16 inch: 0.5625inch \ 14.2875mm
 
-
-function SRSS__3_length() = SRSS__3[2];
-function SRSS__3_dia() = SRSS__3[1];
-function SRSS__6_length() = SRSS__6[2];
-function SRSS__6_dia() = SRSS__6[1];
-function SRSS__10_length() = SRSS__10[2];
-function SRSS__10_dia() = SRSS__10[1];
+function SRSS_dia(size) 	= size == 3 ? SRSS__3[1] : size == 6 ? SRSS__6[1] : size == 10 ? SRSS__10[1] : undef;
+function SRSS_length(size) 	= size == 3 ? SRSS__3[2] : size == 6 ? SRSS__6[2] : size == 10 ? SRSS__10[2] : undef;
 
 module SRSSBP(size) //plain bushing no thread
 {
+	if (size == 3)
+		_SRSSBP(SRSS__3);
 	if (size == 6)
-	{
-		_SRSSBP(SRSS__6[0], SRSS__6[1], SRSS__6[2], SRSS__6[3], SRSS__6[4], SRSS__6[5], SRSS__6[6]);
-	}
+		_SRSSBP(SRSS__6);
 	if (size == 10)
-	{
-		_SRSSBP(SRSS__10[0], SRSS__10[1], SRSS__10[2], SRSS__10[3], SRSS__10[4], SRSS__10[5], SRSS__10[6]);
-	}
+		_SRSSBP(SRSS__10);		
 }
 
 module SRSSBY(size) //plain bushing, with thread
 {
 	if (size == 3)
-	{
-		_SRSSBY(SRSS__3[0], SRSS__3[1], SRSS__3[2], SRSS__3[3], SRSS__3[4], SRSS__3[5], SRSS__3[6]);
-	}
+		_SRSSBY(SRSS__3);
 	if (size == 6)
-	{
-		_SRSSBY(SRSS__6[0], SRSS__6[1], SRSS__6[2], SRSS__6[3], SRSS__6[4], SRSS__6[5], SRSS__6[6]);
-	}
+		_SRSSBY(SRSS__6);
 	if (size == 10)
-	{
-		_SRSSBY(SRSS__10[0], SRSS__10[1], SRSS__10[2], SRSS__10[3], SRSS__10[4], SRSS__10[5], SRSS__10[6]);
-	}
+		_SRSSBY(SRSS__10);
 }
 
 module SRSSZP(size) //anti back lash nut, no thread
 {
+	if (size == 3)
+		_SRSSZP(SRSS__3);
 	if (size == 6)
-	{
-		_SRSSZP(SRSS__6[0], SRSS__6[1], SRSS__6[2], SRSS__6[3], SRSS__6[4], SRSS__6[5], SRSS__6[6]);
-	}
+		_SRSSZP(SRSS__6);
 	if (size == 10)
-	{
-		_SRSSZP(SRSS__10[0], SRSS__10[1], SRSS__10[2], SRSS__10[3], SRSS__10[4], SRSS__10[5], SRSS__10[6]);
-	}
+		_SRSSZP(SRSS__10);
 }
 
 module SRSSZY(size) //antiback lash nut, with thread
@@ -70,32 +55,34 @@ module SRSSZY(size) //antiback lash nut, with thread
 	echo(str("Item: SRSSZY antibacklash bushing ",size,"mm diameter"));
 	
 	if (size == 3)
-	{
-		_SRSSZY(SRSS__3[0], SRSS__3[1], SRSS__3[2], SRSS__3[3], SRSS__3[4], SRSS__3[5], SRSS__3[6]);
-	}
+		_SRSSZY(SRSS__3);
 	if (size == 6)
-	{
-		_SRSSZY(SRSS__6[0], SRSS__6[1], SRSS__6[2], SRSS__6[3], SRSS__6[4], SRSS__6[5], SRSS__6[6]);
-	}
+		_SRSSZY(SRSS__6);
 	if (size == 10)
-	{
-		_SRSSZY(SRSS__10[0], SRSS__10[1], SRSS__10[2], SRSS__10[3], SRSS__10[4], SRSS__10[5], SRSS__10[6]);
-	}
+		_SRSSZY(SRSS__10);
 }
 
-module _SRSSBP(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, thread_bolt_dia, threads_per_inch, thread_length)
+module _SRSSBP(dims)
 {
+	shaft_dia = dims[0];
+	bushing_outside_dia = dims[1];
+	bushing_length = dims[2];
+	root_diameter = dims[3];
+	thread_bolt_dia = dims[4];
+	threads_per_inch = dims[5];
+	thread_length = dims[6];
+	
 	//plain bearing
 	difference()
 	{
 		//the bearing
-		translate([0,0,-bushing_length/2]) //centre it in Z
+		translate([0, 0, -bushing_length/2]) //centre it in Z
 		{
 			union()
 			{
-				color("Goldenrod") cylinder(d=bushing_outside_dia, h=thread_length, center=false);
+				color("Goldenrod") render() cylinder(d=bushing_outside_dia, h=thread_length, center=false);
 				translate([0,0,thread_length])
-					color("DimGray", 1) cylinder(d=bushing_outside_dia, h=bushing_length-thread_length, center=false);
+					color("DimGray", 1) render() cylinder(d=bushing_outside_dia, h=bushing_length-thread_length, center=false);
 			}
 		}
 		
@@ -104,8 +91,16 @@ module _SRSSBP(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, th
 	}
 }
 
-module _SRSSBY(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, thread_bolt_dia, threads_per_inch, thread_length)
+module _SRSSBY(dims)
 {
+	shaft_dia = dims[0];
+	bushing_outside_dia = dims[1];
+	bushing_length = dims[2];
+	root_diameter = dims[3];
+	thread_bolt_dia = dims[4];
+	threads_per_inch = dims[5];
+	thread_length = dims[6];
+	
 	//plain bearing with thread
 	difference()
 	{
@@ -114,18 +109,25 @@ module _SRSSBY(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, th
 		{
 			union()
 			{
-				//color("Goldenrod") cylinder(d=bushing_outside_dia, h=thread_length, center=false);
 				color("Goldenrod") thread(thread_bolt_dia, 0.5, thread_length, 25.4/threads_per_inch);
 				translate([0,0,thread_length/2])
-					color("DimGray", 1) cylinder(d=bushing_outside_dia, h=bushing_length-thread_length, center=false);
+					color("DimGray", 1) render() cylinder(d=bushing_outside_dia, h=bushing_length-thread_length, center=false);
 			}
 		}
 		_SRSS_rod(shaft_dia, bushing_length+1);
 	}
 }
 
-module _SRSSZP(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, thread_bolt_dia, threads_per_inch, thread_length)
+module _SRSSZP(dims)
 {
+	shaft_dia = dims[0];
+	bushing_outside_dia = dims[1];
+	bushing_length = dims[2];
+	root_diameter = dims[3];
+	thread_bolt_dia = dims[4];
+	threads_per_inch = dims[5];
+	thread_length = dims[6];
+	
 	grip_height = bushing_length/8;
 	backlash_height = bushing_length-thread_length-grip_height;
 	backlash_flange_height = backlash_height/10;
@@ -139,13 +141,13 @@ module _SRSSZP(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, th
 			union()
 			{
 				//brass bit
-				color("Goldenrod") cylinder(d=bushing_outside_dia, h=thread_length, center=false);
+				color("Goldenrod") render() cylinder(d=bushing_outside_dia, h=thread_length, center=false);
 				
 				//top grippy bit
 				translate([0,0,bushing_length-grip_height/2]) 
 					difference()
 					{
-						color("DimGray") cylinder(d=bushing_outside_dia, h=grip_height, center=true);
+						color("DimGray") render() cylinder(d=bushing_outside_dia, h=grip_height, center=true);
 						for(i=[0,90])
 						{
 							rotate([0,0,i]) cube(size=[bushing_outside_dia+3,3,6], center=true);
@@ -156,6 +158,7 @@ module _SRSSZP(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, th
 				translate([0,0,backlash_height/2+thread_length])
 				{	
 					color("DimGray")
+					render()
 					difference()
 					{
 						//main bearing body
@@ -179,8 +182,16 @@ module _SRSSZP(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, th
 	}
 }
 
-module _SRSSZY(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, thread_bolt_dia, threads_per_inch, thread_length)
+module _SRSSZY(dims)
 {
+	shaft_dia = dims[0];
+	bushing_outside_dia = dims[1];
+	bushing_length = dims[2];
+	root_diameter = dims[3];
+	thread_bolt_dia = dims[4];
+	threads_per_inch = dims[5];
+	thread_length = dims[6];
+	
 	//anti backlash with thread
 	grip_height = bushing_length/10;
 	backlash_height = bushing_length-thread_length-grip_height;
@@ -193,14 +204,11 @@ module _SRSSZY(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, th
 			//the bearing
 			union()
 			{
-				//brass bit
-				translate([0,0,thread_length/2]) color("Goldenrod") thread(thread_bolt_dia, 0.5, thread_length, 25.4/threads_per_inch);
-				
 				//top grippy bit
 				translate([0,0,bushing_length-grip_height/2]) 
 					difference()
 					{
-						color("DimGray") cylinder(d=bushing_outside_dia, h=grip_height, center=true);
+						color("DimGray") render() cylinder(d=bushing_outside_dia, h=grip_height, center=true);
 						for(i=[0,90])
 						{
 							rotate([0,0,i]) cube(size=[bushing_outside_dia+3,3,6], center=true);
@@ -211,6 +219,7 @@ module _SRSSZY(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, th
 				translate([0,0,backlash_height/2+thread_length])
 				{	
 					color("DimGray")
+					render(convexity = 4)
 					difference()
 					{
 						//main bearing body
@@ -226,6 +235,10 @@ module _SRSSZY(shaft_dia, bushing_outside_dia, bushing_length, root_diameter, th
 					
 					color("Silver") spring(bushing_outside_dia, 1, backlash_height-backlash_flange_height, backlash_height/1.5);
 				}
+				
+				//brass bit
+				translate([0,0,thread_length/2]) color("Goldenrod") thread(thread_bolt_dia, 0.5, thread_length, 25.4/threads_per_inch);
+				
 			}
 			
 			//the bit where the rod goes
@@ -239,17 +252,11 @@ module SRSS_rod(size, length)
 	echo(str("Item: SRSS spline rod ",size,"mm diameter ",length,"mm length"));
 	
 	if (size == 3)
-	{
 		color("DimGray", 1) _SRSS_rod(SRSS__3[0], length);
-	}
 	if (size == 6)
-	{
 		color("DimGray", 1) _SRSS_rod(SRSS__6[0], length);
-	}
 	if (size == 10)
-	{
 		color("DimGray", 1) _SRSS_rod(SRSS__10[0], length);
-	}
 }
 
 module _SRSS_rod(dia, length)
