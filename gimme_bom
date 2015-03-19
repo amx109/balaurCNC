@@ -1,5 +1,6 @@
-#! /bin/bash
+#!/bin/bash
+# with thanks to fugu
 #xclip -o -selection clipboard > $1
-openscad -o temp.ast balaur.scad &> output
+./openscad -D threaded=1 -o temp.ast balaur.scad &> output
 cat output | sed -n 's/^ECHO: "Item: //p' | sed -n 's/"//p' | sort -n | uniq -c
 
