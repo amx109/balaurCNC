@@ -14,6 +14,9 @@ module y_carriage(Yaxis_seperation)
 	Ycarriage_width = Yaxis_seperation+LMOP_dia(bearing_type);
 	mounting_plate_thickness = 3;
 	
+	echo(str("Item: Aluminium Tube OD: 3/4\" (19.15mm) x ID:15mm x Wall:2.032m (14SWG)")); 
+	echo(str("Item: Aluminium Sheet ",Ycarriage_length,"mm x ",Ycarriage_width,"mm x 3mm WxDxH"));
+
 	difference()
 	{
 		union()
@@ -22,10 +25,11 @@ module y_carriage(Yaxis_seperation)
 			{
 				//tubular bearing holders
 				color("Gainsboro")
+				render(convexity = 2)
 				difference()
 				{
 					translate([i*Yaxis_seperation/2,0,0]) rotate([90,0,0])
-						cylinder(h=Ycarriage_length, d=LMOP_dia(bearing_type)+4.15, $fn=50, center=true); //tube 19.15mm (3/4 inch) OD x 15mm ID x 2.032mm (14 SWG) )wall
+						cylinder(h=Ycarriage_length, d=LMOP_dia(bearing_type)+4.15, $fn=50, center=true); //tube 19.15mm (3/4 inch) OD x 15mm ID x 2.032mm (14 SWG) wall
 					translate([i*Yaxis_seperation/2,0.1,0]) rotate([90,0,0])
 						cylinder(h=Ycarriage_length+1, d=LMOP_dia(bearing_type), $fn=50, center=true); //inner diameter hole
 					translate([0,0,3+19.15/2-0.5])
@@ -48,6 +52,7 @@ module y_carriage(Yaxis_seperation)
 			
 			//mounting plate
 			color("Gainsboro")
+			render(convexity = 2)
 			translate([0,0,(LMOP_dia(bearing_type)+4.15)/2-0.5])
 			{
 				difference()
