@@ -29,6 +29,7 @@ module belt(type, x1, y1, r1, x2, y2, r2, gap = 0) {
     //vitamin(str("BT", belt_pitch(type) * 10,width, round(length), ": Belt T", belt_pitch(type)," x ", width, "mm x ", round(length), "mm"));
 
     color("white")
+    render(convexity = 2)
     linear_extrude(height = width, center = true, convexity = 6) {
         difference() {
             hull() {                                                    // outside of belt
