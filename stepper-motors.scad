@@ -36,38 +36,51 @@ module NEMA(motor) {
     boss_height = motor[5];
     shaft_rad = NEMA_shaft_dia(motor) / 2;
     cap = 8;
-    //vitamin(str("NEMA", round(motor[0] / 2.54), length * 10, ": NEMA", round(motor[0] / 2.54), " x ", length, "mm stepper motor"));
-    union() {
-        color("black") render()                                                     // black laminations
+    
+    union()
+    {
+        color("black")
+        render() // black laminations
             translate([0,0, -length / 2])
-                intersection() {
+                intersection()
+                {
                     cube([side, side, length - cap * 2],center = true);
                     cylinder(r = body_rad, h = 2 * length, center = true);
                 }
-        color("silver") render() {                                     // aluminium end caps
-            difference() {
-                union() {
-                    intersection() {
-                        union() {
-                            translate([0,0, -cap / 2])
-                                cube([side,side,cap], center = true);
-                            translate([0,0, -length + cap / 2])
-                                cube([side,side,cap], center = true);
-                        }
-                        cylinder(r = NEMA_radius(motor), h = 3 * length, center = true);
-                    }
-                    difference() {
-                        cylinder(r = boss_rad, h = boss_height * 2, center = true);                 // raised boss
-                        cylinder(r = shaft_rad + 2, h = boss_height * 2 + 1, center = true);
-                    }
-                    cylinder(r = shaft_rad, h = NEMA_shaft_length(motor) * 2, center = true, $fn=25);  // shaft
-                }
-                for(x = NEMA_holes(motor))
-                    for(y = NEMA_holes(motor))
-                        translate([x, y, 0])
-                            cylinder(r = 3/2, h = 9, center = true);
-            }
-        }
+        
+        color("silver") // aluminium end caps
+        render() 
+		difference()
+		{
+			union()
+			{
+				intersection()
+				{
+					union()
+					{
+						translate([0,0, -cap / 2])
+							cube([side,side,cap], center = true);
+						translate([0,0, -length + cap / 2])
+							cube([side,side,cap], center = true);
+					}
+					cylinder(r = NEMA_radius(motor), h = 3 * length, center = true);
+				}
+				
+				difference()
+				{
+					cylinder(r = boss_rad, h = boss_height * 2, center = true);                 // raised boss
+					cylinder(r = shaft_rad + 2, h = boss_height * 2 + 1, center = true);
+				}
+				
+				cylinder(r = shaft_rad, h = NEMA_shaft_length(motor) * 2, center = true, $fn=25);  // shaft
+			}
+			
+			for(x = NEMA_holes(motor))
+				for(y = NEMA_holes(motor))
+					translate([x, y, 0])
+						cylinder(r = 3/2, h = 9, center = true); //screw holes
+		}
+        
 
         translate([0, side / 2, -length + cap / 2])
             rotate([90, 0, 0])
@@ -75,7 +88,7 @@ module NEMA(motor) {
                     rotate([0, 0, 225 + i * 90])
                         color(["red", "blue","green","black"][i]) render()
                             translate([1, 0, 0])
-                                cylinder(r = 1.5 / 2, h = 12, center = true);
+                                cylinder(r = 1.5 / 2, h = 12, center = true); //wires
 
 
     }
