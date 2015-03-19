@@ -7,7 +7,7 @@ use <ironmongery.scad>
  *  otherwise it will show the carriage in display format
  * 
  */
-display = 1;
+display = true;
 
 $fn=50;
 
@@ -17,6 +17,7 @@ front_carriage_depth = 19.5; //measured from the axial centre of the smooth rod 
 
 z_carriage("LM8", 56);
 translate([display? -50 : 0, display? -50 : -35, 0]) z_carriage("LM8", 56);
+
 
 module z_carriage(bearing_type, Yaxis_seperation)
 {
@@ -33,20 +34,20 @@ module z_carriage(bearing_type, Yaxis_seperation)
 	{
 		//bearing holder + inserts + y rod holder + fillets
 		color("MediumSeaGreen")
-		//render()
+		render(convexity = 6)
 		union()
 		{
 			bearing_holder(carriage_width, carriage_height, bearing_dia);
 			bearing_captive_inserts(bearing_dia, bearing_length, show_bearings = display?1:0);
 			
 			//Y axis rail holders
-			color("blue")
+			//color("blue")
 			for(i=[0,1]) 
 				mirror([i,0,0])
 					translate([Yaxis_seperation/2, front_carriage_depth-(front_carriage_depth+bearing_dia/2)/2, -carriage_height/2])
 						rail_holders(bearing_type, Yaxis_seperation);
 			
-			color("pink")
+			//color("pink")
 			{
 				fillets(Yaxis_seperation, carriage_width, carriage_height); //fillet LHS
 				mirror([1,0,0]) fillets(Yaxis_seperation, carriage_width, carriage_height); //fillet RHS
@@ -71,23 +72,24 @@ module z_carriage(bearing_type, Yaxis_seperation)
 	}
 	
 	//clamp bolts + nut for show
-	*if(display)
+	if(display)
 	{
-		translate([0,front_carriage_depth-4.5,carriage_height/2])
+		*translate([0,front_carriage_depth-4.5,carriage_height/2])
 			nut(6, flat=true);
 		
 		for(i=[1,-1])
 		{
-			translate([Yaxis_seperation/2-Yaxis_seperation/7*i, -bearing_dia/2+3.33, -carriage_height/2])
+			*translate([Yaxis_seperation/2-Yaxis_seperation/7*i, -bearing_dia/2+3.33, -carriage_height/2])
 			{
 				translate([0,0,24]) bolt(3, 29, 0);
 				translate([0,0,-1]) nut(3);
 			}
-			translate([0, 0, (bearing_length/2+bearing_gap/2-0.25)*i]) LM(rod_dia);
+			translate([0, 0, (bearing_length/2+bearing_gap/2-0.25)*i])
+				LM(bearing_type);
 		}
 		
 		
-		translate([	-Yaxis_seperation/2+Yaxis_seperation/7,
+		*translate([	-Yaxis_seperation/2+Yaxis_seperation/7,
 					-bearing_dia/2+3.33,-carriage_height/2])
 		{
 			translate([0,0,23.7]) bolt(3, 29, 0);
