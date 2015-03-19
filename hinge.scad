@@ -1,4 +1,4 @@
-use <MCAD/metric_fastners.scad>
+use <ironmongery.scad>
 
 
 hinge_outer_flange_length = 18;
@@ -51,7 +51,7 @@ module hinge(open)
 				{
 					rotate([180,0,0])
 						translate([0,i*(hinge_outer_hole_distance/2),-(hinge_flange_thickness/2)-0.1])
-							csk_bolt(3,14);
+							bolt(3,14,csk=true,mould=true);
 				}
 			}
 		}
@@ -88,7 +88,7 @@ module hinge(open)
 						translate([(hinge_outer_flange_length+(hinge_barrel_circumference/2))/2,
 									i*(hinge_inner_hole_distance/2),
 									-(hinge_flange_thickness/2)-0.1])
-							csk_bolt(3,14);
+							bolt(3,14,csk=true,mould=true);
 					}
 				}
 			}

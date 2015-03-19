@@ -5,8 +5,6 @@
  * Z is height
  */
 
-include <MCAD/materials.scad>
-
 caseX = 460;
 caseY = 335;
 caseZ = 160;

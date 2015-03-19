@@ -1,5 +1,3 @@
-include <MCAD/nuts_and_bolts.scad>
-
 M6 = 6;
 $fn=50;
 
@@ -35,7 +33,7 @@ module _SC(d, h, D, W, H, G, A, J, E, S1, S2, K, L, Kw, Lw, I, LMU_OD)
 		//mounting holes
 		for(i=[1 : 4])
 		{
-			rotate([180,0,i*90]) translate([K/2,J/2,-H-1])  boltHole(size=S1, length=I+1+1);
+			rotate([180,0,i*90]) translate([K/2,J/2,-H-1])  cylinder(d=S1, h=I+1+1, $fn=50, center=true);
 		}
 	}
 }

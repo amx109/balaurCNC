@@ -7,8 +7,6 @@
  * currently only has info to produce SK20 supports 
  */
 
-include <MCAD/nuts_and_bolts.scad>
-
 M6 = 6;
 $fn=50;
 
@@ -31,7 +29,7 @@ module _SK(d, h, E, W, L, F, G, P, B, S, clamping_bolt, mounting_bolts)
 			//mounting holes
 			for(i=[-1,1])
 			{
-				translate([i*(B/2),0,(G+0.5)]) rotate([180,0,0]) boltHole(size=mounting_bolts, length=G+1);
+				translate([i*(B/2),0,(G+0.5)]) rotate([180,0,0]) cylinder(d=mounting_bolts, h=G+1, $fn=50, center=true);
 			}
 		}
 		
