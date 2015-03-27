@@ -25,12 +25,12 @@ A4_length = 297;
 
 tslot_size = 30; // we're going to use 30mm tslot
 
-folded = 1;
+folded = 0;
 
 //variables to fiddle with Y axis position/A4 bed X axis position
 YZaxis_X_position = 0;    // was -80;
 Yaxis_position    = -105; //-105 for non-y drive end, 105 for y drive end
-Yaxis_Z_position  = folded ? 290 : 290; //110 = Z0, maxZ = 219. build height in Z is 219-110 = 109mm
+Yaxis_Z_position  = folded ? 290 : 110; //110 = Z0, maxZ = 219. build height in Z is 219-110 = 109mm
 
 Yaxis_seperation = 56; //mendel90 uses 56mm width for rails. copy copy
 
@@ -54,7 +54,7 @@ echo(str("Item: Aluminium Sheet: (A3) 420x297x3 WxDxH")); //for BOM generation
 draw();
 *render_for_milling();
 *render_for_3d_printing();
-
+*finger_join_example();
 *x_carriage(113.5, 93);
 /*****************************************************************/
 
@@ -86,7 +86,6 @@ module draw()
 			Yaxis();
 			/********* Z axis *********/
 			Zaxis();
-			*Zaxis2();
 		}
 	}
 	
@@ -161,7 +160,7 @@ module Xaxis()
 					translate([i==0 ? -NEMA_width(nemaTypeY)-3:0, 0, 0]) //move further back on far side cos of Y axis stepper
 					{
 						anchor();
-						translate([0,0,-7]) tslot_nut(tslot_size, 4);
+						translate([-5,0,-7]) tslot_nut(tslot_size, 4);
 						translate([0,0,4]) bolt(4,10,threaded=threaded);
 					}
 			}
@@ -381,6 +380,8 @@ module Zaxis()
 	rod_dia = LM_rod_dia(Z_bearing_type);
 	rodYoffset = brace_wall_thickness+LM_dia(Z_bearing_type)/2+1; //distance of centre of y axis (rod) from outside face of brace wall (1mm gap)
 	rodY = case_bottom_int_Y()/2-rodYoffset;
+	
+	echo(str("rody: ",rodY,", rodyoffset: ",rodYoffset,""));
 	// in this layout the central smooth rod will be the centreline for the z axis
 	// there was regret. we only mirror z lifty bit now
 	
@@ -420,8 +421,8 @@ module Zaxis()
 			}
 		
 			//linear rods
-			translate([0, 0, NEMA_length(nemaTypeZ)+(Zheight-NEMA_length(nemaTypeZ))/2])
-				linear_rod(diameter=rod_dia, length=Zheight-NEMA_length(nemaTypeZ));
+			translate([0, 0, NEMA_length(nemaTypeZ)+(Zheight-NEMA_length(nemaTypeZ))/2-3/2])
+				linear_rod(diameter=rod_dia, length=Zheight-NEMA_length(nemaTypeZ)-3);
 				
 			//z_carriage
 			translate([0, 0, Yaxis_Z_position+17.4-Zfloor])
@@ -436,93 +437,6 @@ module Zaxis()
 					tslot(20, Zheight-3);
 	
 	echo("********************** Z Axis END *****************************");
-}
-
-module Zaxis2()
-{
-	echo("***************************************************************");
-	echo("*                          Z Axis                             *");
-	echo("*                                                             *");
-	echo("*                                                             *");
-	echo("***************************************************************");
-	
-	echosize("distance of center axis of smooth rod from inner wall of bracing", 8/2+12);
-	
-	/*  ///// screw rod //////
-	* 
-	* M6 screw rod isnt 6mm in diameter
-	* specs say major diameter is 5.79(min) and 5.97(max). so we're going with 5.9
-	*/
-	threaded_rod_dia = 5.9;
-	threaded_rod_length = Zheight-NEMA_length(nemaTypeZ)-NEMA_boss_height(nemaTypeZ)-NEMA_shaft_length(nemaTypeZ);
-	Z_bearing_type = "LM8";
-	
-	rod_dia = LM_rod_dia(Z_bearing_type);
-	rodYoffset = brace_wall_thickness+LM_dia(Z_bearing_type)/2+1; //distance of centre of y axis (rod) from outside face of brace wall
-	rodY = case_bottom_int_Y()/2-rodYoffset;
-	
-	//bracing for Y/Z
-	echo(str("*************** Bracing    *******************"));
-	color("darkgray")
-	translate([0, 0, Zfloor-brace_wall_thickness]) 
-		rotate([0,0,90])
-			brace(	brace_wall_thickness,
-					case_bottom_int_Y(),
-					Zheight,
-					NEMA_width(nemaTypeZ), //gauge
-					net=false);
-	
-	
-	echo(str("*************** Z lifty bit ******************"));
-	for(i=[1,-1])
-	{
-		translate([0, i*rodY, Zfloor])
-		{
-			translate([0, -15*i, NEMA_length(nemaTypeZ)])
-			{
-				rotate([0,0,90]) nema_motor(nemaTypeZ); //stepper
-				
-				//threaded rod
-				translate([0, 0, threaded_rod_length/2+NEMA_shaft_length(nemaTypeZ)+2])
-					linear_rod(threaded_rod_dia, threaded_rod_length, threaded);
-				
-				//z-motor-threaded-rod coupler
-				color("silver")
-						translate([0, 0, 25/2+NEMA_boss_height(nemaTypeZ)+1])
-							cylinder(d=18, h=25, $fn=50, center=true);
-			}
-			
-			//linear rods
-			translate([0, 0, NEMA_length(nemaTypeZ)+(Zheight-NEMA_length(nemaTypeZ))/2])
-				linear_rod(diameter=rod_dia, length=Zheight-NEMA_length(nemaTypeZ));
-			
-			//z_carriage
-			*translate([0, 0, Yaxis_Z_position+17.4-Zfloor])
-				mirror([0, i==1 ? 1:0, 0])
-					z_carriage(Z_bearing_type, Yaxis_seperation);
-		}
-	}
-	
-	*for(i=[1,-1])
-	{
-		for(j=[1,-1])
-			translate([j*(Yaxis_seperation/2+15), i*(case_bottom_int_Y()/2-tslot_size/2+5), Zheight/2+tslot_size])
-				rotate([0,90,0])
-					tslot(20, Zheight);
-		translate([0, i*(case_bottom_int_Y()/2-tslot_size/2+5), Zheight+tslot_size-20/2])
-			tslot(20, Yaxis_seperation+20);
-		translate([i*(Yaxis_seperation/2+15), 0, Zheight+tslot_size-20/2])
-			rotate([0, 0, 90]) 
-				tslot(20, case_bottom_int_Y()-20-20);
-	}
-	
-	for(i=[1,-1])
-	{
-		translate([(Yaxis_seperation/2+15), i*(case_bottom_int_Y()/2-tslot_size/2+5), Zheight/2+tslot_size])
-				rotate([0,90,0])
-					tslot(20, Zheight);
-	}
-	
 }
 
 module motor_mount_plate(nemaType, extra_depth)
@@ -609,14 +523,6 @@ module motor_mount_plate(nemaType, extra_depth)
 			}
 }
 
-
-			*brace(	brace_wall_thickness,
-					case_bottom_int_Y(),
-					Zheight,
-					NEMA_width(nemaTypeZ), //gauge
-					net=false);
-			*joinery_example();
-
 module brace(wall_thickness, width, height, gauge, net=false)
 {
 	/* 
@@ -632,13 +538,12 @@ module brace(wall_thickness, width, height, gauge, net=false)
 	
 	extra_depth = 20; //in -ve X of the horizontal brace bar for the vertical sections
 	
-	//render()
 	for(i=[1,-1])
 	{
 		//bottom motor plate
 		color("lightblue")
 		render()
-		translate([net ? 6:i*width/2, net ? i*gauge*0.85-3:0, net ? 0:wall_thickness/2]) 
+		translate([net ? i*24+7:i*width/2, net ? i*gauge*0.85+48:0, net ? 0:wall_thickness/2]) 
 			union()
 			{
 				difference()
@@ -661,7 +566,7 @@ module brace(wall_thickness, width, height, gauge, net=false)
 						}
 						
 						//y drive stepper platform
-						if(i==1) //only want this on one side
+						if(i==1) //(only want this on one side)
 							translate([-(NEMA_width(nemaTypeY)+wall_thickness)/2, gauge/2+(NEMA_width(nemaTypeY)+3)/2, 0])
 							difference()
 							{
@@ -673,7 +578,7 @@ module brace(wall_thickness, width, height, gauge, net=false)
 											translate([(i*NEMA_hole_pitch(nemaTypeY)/2), j*NEMA_hole_pitch(nemaTypeY)/2, 0])
 												cylinder(d=3, h=10, $fn=50, center=true);
 							}
-								
+						
 						//toggle clamp section
 						translate([i*-tslot_size/2, -12/2-gauge/2, 0])
 							cube(size=[tslot_size, 12, wall_thickness], center=true); 
@@ -682,8 +587,7 @@ module brace(wall_thickness, width, height, gauge, net=false)
 					//finger joints
 					translate([i*(6/2-3), -extra_depth/2, 6/3-0.5+1])
 						mirror([i==-1? 1:0,0,0])
-							finger_join(1, gauge+extra_depth);	//poisiton shape 3mm in from long edge, 1mm up from floor.
-
+							finger_join(1, 1, gauge+extra_depth);	//poisiton shape 3mm in from long edge, 1mm up from floor.
 				}
 				
 				//rear anchor section
@@ -694,8 +598,10 @@ module brace(wall_thickness, width, height, gauge, net=false)
 		//vertical bits
 		color("lightgreen")
 		render()
-		translate([net ? i*(((-gauge-extra_depth)/2)-gauge/2+5)+5:i*(width/2-wall_thickness/2), 0, net ? 0:height/2])
-			rotate([net ? 0:90, net ? (i==1 ? 0:180):0, net ? (i==1 ? 0:180):(i==1 ? 90:-90)])
+		translate([	net ? i*(((-gauge-extra_depth)/2)-gauge/2+3)+7: i*(width/2-wall_thickness/2), 
+					0,
+					net ? 0:height/2])
+			rotate([net ? (i==1?180:0):90, net ? (i==1 ? 0:180):0, net ? (i==1 ? 0:180):(i==1 ? 90:-90)])
 				difference()
 				{
 					union()
@@ -709,42 +615,112 @@ module brace(wall_thickness, width, height, gauge, net=false)
 							cube(size=[extra_depth, gauge, wall_thickness], center=true);
 					}
 					
-					//finger joints for vertical...
-					translate([i*-extra_depth/2, -height/2-6/2+1, -1-3/2]) 
+					//finger joints for bottom of vertical...
+					translate([i*-(extra_depth/2-8/2), -height/2-6/2+1, -1-3/2]) 
 						rotate([0, 0, -90])
 							mirror([0, i==-1? 1:0,0])
-							finger_join(0, gauge+extra_depth); //position shape 1mm in from long edge, 1 from ceiling
-					//...and brace bit (this should be illegal. im very sorry. not sorry.)
+								finger_join(0, 1, gauge+extra_depth-8); //position shape 1mm in from long edge, 1 from ceiling
+					//...top of the vertical
+					translate([i*-extra_depth/2, height/2+6/2-1, -6/2+3/2-1]) 
+						rotate([0, 0, i==1 ? -90:90])
+							mirror([i==1 ? 1:0, 0, 0])
+								finger_join(0, 1, gauge+extra_depth); //position shape 1mm in from long edge, 1 from ceiling
+					//...and horizontal brace bit (this should be illegal. im very sorry. not sorry.)
 					translate([i*-(gauge/2+extra_depth), (height/2-gauge/2), -1.5-1]) 
 						mirror([0, 0, i == -1 ? 1:0])
 							rotate([0, i == 1? 180:0, 0]) 
-									finger_join(1,gauge);
+									finger_join(1, 1, gauge);
 					
 					//holes for motor mount
-					for(i=[1,-1])
-						translate([15*i,-height/2+NEMA_length(nemaTypeZ)+20,0])
+					for(j=[1,-1])
+						translate([15*j,-height/2+NEMA_length(nemaTypeZ)+20,0])
 							cylinder(d=4, h=25, $fn=50, center=true);
+							
+					//bit to make it fit over the doobery
+					translate([i*-(gauge/2+12+10/2), -height/2-4/2+3, 0])
+						cube(size=[10, 4, 4], center=true);
 				}
 	}
 	
 	//width spanning brace
 	color("red")
 	render()
-	translate([net ? gauge*3-15:0, net ? (width-height)/2:-(gauge/2+extra_depth-wall_thickness/2), net ? 0:height-gauge/2])
-		rotate([net ? 0:90, 0, net ? 90:0])
+	translate([net ? gauge*3-3:0, net ? (width-height)/2:-(gauge/2+extra_depth-wall_thickness/2), net ? 0:height-gauge/2])
+		rotate([net ? 180:90, 0, net ? 90:0])
 			difference()
 			{
 				cube(size=[width, gauge, wall_thickness], center=true);
+				
+				//finger join for vertical section
 				for(i=[0,1])
 					mirror([i,0,0])
-						translate([width/2+6/2-1, 0, -1.5-1]) 
-							rotate([0,0,0])
-								finger_join(0, gauge);
+					{
+						translate([width/2+6/2-1, 0, -1.5-1])
+								finger_join(0, 1, gauge);
+						
+						//finger join for top-square section
+						translate([-width/2+(20+25)/2, gauge/2+6/2-1, -6/2+3/2-1])
+							rotate([0,0,-90])
+								mirror([1,0,0])
+									finger_join(0, 1, 20+25);
+					}
 			}
+	
+	color("white")
+	render()
+	for(i=[0,1])
+		translate([net ? -5.5:0,0,0]) 
+		mirror([i, 0, 0])
+			translate([net ? i*-25:-width/2+20/2, net ? i*(gauge+extra_depth+5)-125:-extra_depth/2, net ? 0:height-3/2])
+				rotate([net ? 180:0, 0, 0]) 
+				difference()
+				{
+					union()
+					{
+						cube(size=[20, gauge+extra_depth, 3], center=true);
+						
+						translate([20/2-0.1, -(gauge+extra_depth)/2, 0])
+							rotate([-90,0,0])
+								fillet(25,3,20);
+						
+						translate([(20+25)/2+5, -(gauge+extra_depth)/2+3/2, 1])
+							cube(size=[15, 3, 1], center=true);
+					}
+					
+					translate([1.5, extra_depth/2, 0]) 
+						cylinder(d=8, h=10, $fn=50, center=true);
+					
+					translate([20/2+0.1, gauge/2+extra_depth/2+0.01, 0])
+						rotate([90,0,-90])
+							fillet(20,10,22);
+					
+					translate([-20/2-6/2+3, 0, -1.5-1+0.01])
+						rotate([0, 180, 0])
+							finger_join(1, 1, gauge+extra_depth);
+					
+					translate([25/2, -(gauge+extra_depth)/2-6/2+3, -3/2-1+0.01])
+						rotate([0, 0, -90])
+							mirror([0,0,1])
+								finger_join(1, 1, 20+25);
+				}
 }
 
-module finger_join(male, length)
+*translate([0, 0, Zfloor-brace_wall_thickness]) 
+		rotate([0,0,90])
+			brace(	brace_wall_thickness,
+					case_bottom_int_Y(),
+					Zheight,
+					NEMA_width(nemaTypeZ), //gauge
+					net=false);
+
+module finger_join(male, type, length)
 {
+	/*
+	 * male - defines which end of the join you want. male/female isnt really an accurate description (i couldnt think of anything better)
+	 * type - 0 for finger, 1 for 'normal' flat, 2 for magic
+	 * 
+	 */
+	
 	finger_width = 7;
 	moo = length/finger_width;
 	
@@ -757,11 +733,22 @@ module finger_join(male, length)
 			cube(size=[6, length, 6], center=true);
 			
 			//fingers
-			for(i=[-moo/4:moo/4])
-				translate([	male ? 1:-1,
-							male ? i*finger_width*2+finger_width/2:i*finger_width*2+finger_width*1.5, 
-							male ? -2:2.5])
-					cube(size=[4, finger_width, 4], center=true);
+			if(type==0)
+			{
+				for(i=[-moo/4:moo/4])
+					translate([	male ? 1:-1,
+								male ? i*finger_width*2+finger_width/2:i*finger_width*2+finger_width*1.5, 
+								male ? -2:2.5])
+						cube(size=[4, finger_width, 4], center=true);
+			}
+			else 
+			{
+				if(type==1 && male)
+				{
+					translate([1, 0, -2])
+						cube(size=[4, length, 4], center=true);
+				}
+			}
 		}
 		
 		//extra bit to lop off any overlapping finger cutouts
@@ -770,9 +757,10 @@ module finger_join(male, length)
 	}
 }
 
-module joinery_example()
+module finger_join_example()
 {
 	color("lightgreen")
+	render()
 	translate([100/2-3/2, 0, 100/2+3/2-3])
 		rotate([0, 90, 0])
 			difference()
@@ -781,16 +769,18 @@ module joinery_example()
 				
 				//position shape 1mm in from long edge, 1 from ceiling
 				translate([100/2+6/2-1, 0, -1.5-1]) //finger has 1mm depth. cut 1.5mm
-					finger_join(0, 50);
+					finger_join(0, 1, 50);
 			}
 	
+	
+	render()
 	difference()
 	{
 		cube(size=[100,50,3], center=true);
 	
 		//poisiton shape 3mm in from long edge, 1mm up from floor.
 		translate([100/2+6/2-3, 0, 1.5+1]) //finger depth is 3mm. cut 2mm.
-			#finger_join(1, 50);
+			finger_join(1, 1, 50);
 	}
 }
 
@@ -814,20 +804,23 @@ module doobery(length, net=false)
 {
 	color("silver")
 	render()
-	difference()
-	{
-		//alu strip
-		cube(size=[length,tslot_size,brace_wall_thickness], center=true);
-		
-		//holes for the M4 threaded bolts
-		translate([length/2-20, 0, 0])
-			cylinder(d=4, h=10, $fn=50, center=true);
-		translate([-(length/2-7), 0, 0])
-			cylinder(d=4, h=10, $fn=50, center=true);
-	}
+		difference()
+		{
+			//alu strip
+			cube(size=[length,tslot_size,brace_wall_thickness], center=true);
+			
+			//holes for the M4 threaded bolts
+			translate([length/2-20, 0, 0])
+				cylinder(d=4, h=10, $fn=50, center=true);
+			translate([-(length/2-7), 0, 0])
+				cylinder(d=4, h=10, $fn=50, center=true);
+				
+			//holes for the toggle clamp
+		}
 	
-	translate([25-length/2,0,3/2])
-		toggle_clamp();
+	if(!net)
+		translate([25-length/2,0,3/2])
+			toggle_clamp();
 }
 
 module anchor(net=false)
@@ -837,14 +830,16 @@ module anchor(net=false)
 	{
 		difference()
 		{
-			cube(size=[10, tslot_size, brace_wall_thickness], center=true);
+			translate([0, net ? 0:-brace_wall_thickness/2, 0])
+				cube(size=[10, tslot_size-brace_wall_thickness, brace_wall_thickness], center=true);
 			cylinder(d=4, h=10, $fn=50, center=true);
 		}
 		
-		translate([net ? -15:(11-10)/2, 0, net ? 0:brace_wall_thickness])
+		translate([net ? -10-3-1:(11-10)/2, 0, net ? 0:brace_wall_thickness])
 			difference()
 			{
-				cube(size=[11, tslot_size, brace_wall_thickness], center=true);
+				translate([0, net ? 0:-brace_wall_thickness/2, 0]) 
+					cube(size=[11, tslot_size-brace_wall_thickness, brace_wall_thickness], center=true);
 				translate([-0.5,0,0])
 					cylinder(d=4, h=10, $fn=50, center=true);
 			}
@@ -853,14 +848,27 @@ module anchor(net=false)
 
 module render_for_milling()
 {
-	translate([0, 0, 0]) rotate([0,0,90]) color("black")cube(size=[420, 297, 1], center=true); //A3
-	translate([15,45,0]) 
-	brace(	brace_wall_thickness,
-			case_bottom_int_Y(),
-			Zheight,
-			NEMA_width(nemaTypeZ), //gauge
-			net=1);
+	translate([0, 0, -3]) 
+		rotate([0,0,90])
+			color("black")
+				cube(size=[420, 297, 1], center=true); //A3
+				
+	translate([3,51,0]) 
+		brace(	brace_wall_thickness,
+				case_bottom_int_Y(),
+				Zheight,
+				NEMA_width(nemaTypeZ), //gauge
+				net=1);
 	
+	for(i=[0,1])
+	{
+		translate([-90, 197-2-(i*30), 0])
+			anchor(net=true);
+		
+		translate([-95-3-(i*34), 0, 0]) 
+			rotate([0, 0, 90])
+				doobery((case_bottom_int_X()-NEMA_width(nemaTypeZ))/2-12, net=true);
+	}
 }
 
 module render_for_3d_printing()
