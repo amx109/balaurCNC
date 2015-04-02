@@ -19,7 +19,7 @@ function LMOP_length(type)	= type == "LM8" ? LM8UUOP[2] : type == "LM12" ? LM12U
 
 module LMOP(size)
 {
-	echo(str("Item: LM",size,"OPUU bushing"));
+	echo(str("Item: ",size,"OPUU bushing"));
 	
 	if (size == "LM8") _LM__UUOP(LM8UUOP);
 	if (size == "LM12") _LM__UUOP(LM12UUOP);
