@@ -6,9 +6,10 @@
 $fn=50;
 
 //			size, length, sheet thickness, 'gap', center hole dia, centre cube width
-tslot_20 = [20, 0, 1.8, 5, 4.3, 7.3];
-tslot_30 = [30, 0, 2, 6, 5, 10.5];
-tslot_8x30 = [40, 0, 2, 8, 7, 10.8];
+tslot_20   = [20, 0, 1.8, 5, 4.3, 7.3];
+tslot_30   = [30, 0, 2, 6, 5, 10.5];
+tslot_8x30 = [30, 0, 2, 8, 7, 10.8];
+tslot_40   = [40, 0, 2, 8, 6.8, 15.5];
 
 module tslot(size, length)
 {
@@ -20,6 +21,8 @@ module tslot(size, length)
 		_tslot(tslot_30+[0,length,0,0,0,0]);
 	if(size == "8x30")
 		_tslot(tslot_8x30+[0,length,0,0,0,0]);
+	if(size == 40)
+		_tslot(tslot_40+[0,length,0,0,0,0]);
 }
 
 module tslot_nut(size, M)
@@ -30,6 +33,8 @@ module tslot_nut(size, M)
 		_tslot_nut(tslot_30+[0,20,0,0,0,0],M);
 	if(size == "8x30")
 		_tslot_nut(tslot_8x30+[0,20,0,0,0,0],M);
+	if(size == 40)
+		_tslot_nut(tslot_40+[0,20,0,0,0,0],M);
 }
 module _tslot(dims)
 {
