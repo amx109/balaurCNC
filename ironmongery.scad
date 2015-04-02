@@ -31,7 +31,7 @@ module linear_rod(diameter, length, threaded=false)
 
 module bearing(OD, ID, height, description=-1)
 {
-	echo(str("Item: Bearing ", description==-1 ? "" : description, "  ", ID,"x",OD,"x",height," mm (ID x OD x height)"));
+	echo(str("Item: Bearing ", description==-1 ? "" : description, " ", ID,"x",OD,"x",height," mm (ID x OD x height)"));
 	
 	bearingsize = OD; 
 	bearingwidth = height;
@@ -126,7 +126,7 @@ module bolt(M, length, csk=false, threaded=false, mould=false)
 			else
 				translate([0, 0, M/2]) cylinder(h = M, r = M, center = true, $fn = fn);
 			
-			translate([0, 0, M]) cylinder(h = M, r = M / 2, center = true, $fn = 6);
+			translate([0, 0, M]) cylinder(h = M, r = M / 2, center = true, $fn = 6); //hex bolt
 		}
 		
 		if(mould)
