@@ -26,7 +26,7 @@ function NEMA_boss_height(motor) = motor==17 ? NEMA17[5] : motor=="JAN"? NEMAJAN
 function NEMA_shaft_dia(motor)   = motor[6];
 function NEMA_shaft_length(motor)= motor==17 ? NEMA17[7] : motor=="JAN"? NEMAJAN[7] : motor=="17S"? NEMA17S[7] : motor=="17SWantai"? NEMA17SWantai[7] : motor==14? NEMA14[7] : motor[7];
 function NEMA_hole_pitch(motor)  = motor==17 ? NEMA17[8] : motor=="JAN"? NEMAJAN[8] : motor=="17S"? NEMA17S[8] : motor=="17SWantai"? NEMA17SWantai[8] : motor==14? NEMA14[8] : motor[8];
-function NEMA_holes(motor)       = [-motor[8]/2, motor[8]/2];
+function NEMA_holes(motor)       = motor=="JAN"? [-NEMAJAN[8]/2, NEMAJAN[8]/2] : [-motor[8]/2, motor[8]/2];
 
 module NEMA(motor) {
     side = NEMA_width(motor);
