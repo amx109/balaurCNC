@@ -20,7 +20,7 @@ function LM_length(type) 	= type == "LM8" ? LM8[4] : type == "LM10" ? LM10[4] : 
 
 module LM(size)
 {
-	echo(str("Item: LM",size,"UU bushing"));
+	echo(str("Item: ",size,"UU bushing"));
 	
 	if (size == "LM8")
 		_LM(LM8);
