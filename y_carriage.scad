@@ -1,7 +1,7 @@
 use <ironmongery.scad>
 use <LM__UUOP.scad>
 
-
+threaded = 0;
 display = true;
 y_carriage(56);
 
@@ -59,7 +59,8 @@ module y_carriage(Yaxis_seperation)
 				{
 					//the mounting plate
 					//linear_extrude(height=mounting_plate_thickness) roundedSquare(pos=[Ycarriage_width, Ycarriage_length], r=3);
-					translate([0,0,mounting_plate_thickness/2]) roundRect([Ycarriage_width, Ycarriage_length, mounting_plate_thickness], 3);
+					translate([0,0,mounting_plate_thickness/2])
+						roundRect([Ycarriage_width, Ycarriage_length, mounting_plate_thickness], 3);
 					
 					// bits we cut out to make it light and usable
 					for(i=[1,-1])
@@ -112,17 +113,17 @@ module y_carriage(Yaxis_seperation)
 		for(i=[1,-1])
 		{
 			for(j=[1,-1])
-				color("Gainsboro") translate([i*Yaxis_seperation/2,35*j,10-0.7])
+				translate([i*Yaxis_seperation/2,35*j,10-0.7])
 				{
 					mirror([0,0,1])
-						bolt(3,10, csk=true);
-						translate([0,0,5.1]) nut(3, flat=true);
+						bolt(3,10, csk=true, threaded=threaded);
+					translate([0,0,5.1])
+						nut(3, flat=true);
 				}
 			
-			color("Gainsboro") translate([i*Yaxis_seperation/2,0,9])
-			{
-				mirror([0,0,1]) bolt(4,20, csk=true);
-			}
+			translate([i*Yaxis_seperation/2,0,9])
+				mirror([0,0,1])
+					bolt(4,20, csk=true, threaded=threaded);
 		}
 	}
 }
