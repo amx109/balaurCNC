@@ -8,7 +8,7 @@ use <ironmongery.scad>
  * 
  */
 display = true;
-
+threaded = true;
 $fn=50;
 
 bearing_gap = 10;
@@ -81,7 +81,7 @@ module z_carriage(bearing_type, Yaxis_seperation)
 		{
 			*translate([Yaxis_seperation/2-Yaxis_seperation/7*i, -bearing_dia/2+3.33, -carriage_height/2])
 			{
-				translate([0,0,24]) bolt(3, 29, 0);
+				translate([0,0,24]) bolt(3, 29, 0, threaded=threaded);
 				translate([0,0,-1]) nut(3);
 			}
 			translate([0, 0, (bearing_length/2+bearing_gap/2-0.25)*i])
@@ -92,7 +92,7 @@ module z_carriage(bearing_type, Yaxis_seperation)
 		*translate([	-Yaxis_seperation/2+Yaxis_seperation/7,
 					-bearing_dia/2+3.33,-carriage_height/2])
 		{
-			translate([0,0,23.7]) bolt(3, 29, 0);
+			translate([0,0,23.7]) bolt(3, 29, 0, threaded);
 			translate([0,0,-1]) nut(3);
 		}
 		
