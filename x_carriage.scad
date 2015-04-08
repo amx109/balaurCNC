@@ -1,4 +1,3 @@
-use <LM__UUOP.scad>
 use <ironmongery.scad>
 use <hiwin.scad>
 use <stepper-motors.scad>
@@ -103,16 +102,16 @@ module x_carriage(width, height, bushing_type)
 	}
 	
 	//x belt attachment
-	translate([0, 1, height-(20.5+7)/2+2])
+	translate([0, 1, height-(21+7)/2+2])
 	{
 		rotate([90,0,0])
-			carriage_anchor(30, 20.5);
+			carriage_anchor(30, 21);
 		
 		for(i=[1,-1])
 			rotate([-90,0,0]) 
 				translate([i*(30-7)/2, (i*-8.5)+1.5, 1.7])
 				{ 
-					bolt(M=3, length=15, threaded=threaded);
+					bolt(M=3, length=15, threaded=threaded, comments="socket cap");
 					translate([0,0,-9.5])
 						nut(M=3,nyloc=true);
 				}
@@ -164,7 +163,7 @@ module x_carriage(width, height, bushing_type)
 								rotate([-90,0,0])
 									translate([bearing_holes[1]/2*k, bearing_holes[0]/2*l, 0])
 											translate([0,0,mgn_bushing_height(bushing_type)+(3*4)+3/2+0.5/2])
-												bolt(M=3, length=3.5+(3*4)+3, csk=true, threaded=threaded);
+												bolt(M=3, length=20, csk=true, threaded=threaded); //length was 3.5+(3*4)+3=18.5
 			}
 	
 	echo(str("************** END X Carriage *****************"));
@@ -240,8 +239,6 @@ module gt2_belt_anchor(length)
 	}
 }
 
-
-
 module bushing_extended_mount(bushing_type)
 {
 	bearing_holes = mgn_bushing_holes(bushing_type);
@@ -271,9 +268,8 @@ module bushing_extended_mount(bushing_type)
 		//bushing mount holes
 		for(k=[1,-1])
 				for(l=[1,-1])
-					rotate([0,0,0]) 
-						translate([bearing_holes[1]/2*k, bearing_holes[0]/2*l, 0])
-							cylinder(d=3, h=50, $fn=50, center=true);
+					translate([bearing_holes[1]/2*k, bearing_holes[0]/2*l, 0])
+						cylinder(d=3, h=50, $fn=50, center=true);
 		
 		//weight saving holes
 		for(i=[-2:1])
