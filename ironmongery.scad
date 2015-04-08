@@ -99,9 +99,9 @@ module washer(M, dia=-1)
 	}
 }
 
-module bolt(M, length, csk=false, threaded=false, mould=false)
+module bolt(M, length, csk=false, threaded=false, mould=false, comments="")
 {
-	if (!mould) echo(str("Item: Bolt ",threaded ? "Threaded ":"","M",M,"x",length,"mm",csk ? " CSK":""));
+	if (!mould) echo(str("Item: Bolt ",threaded ? "Threaded ":"","M",M,"x",length,"mm",csk ? " CSK":"",comments=="" ? "":str(" ",comments)));
 	
 	pitch = M/6;
 	
