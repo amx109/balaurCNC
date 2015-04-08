@@ -1,7 +1,7 @@
 use <ironmongery.scad>
-use <LM__UUOP.scad>
+use <LM__UU.scad>
 
-threaded = 0;
+threaded = false;
 display = true;
 y_carriage(56);
 
@@ -10,11 +10,11 @@ module y_carriage(Yaxis_seperation)
 	echo(str("*************** Y Carriage *******************"));
 	
 	bearing_type = "LM8";
-	Ycarriage_length = LMOP_length(bearing_type)*3+12;
-	Ycarriage_width = Yaxis_seperation+LMOP_dia(bearing_type);
+	Ycarriage_length = LM_length(bearing_type)*3+12;
+	Ycarriage_width = Yaxis_seperation+LM_dia(bearing_type);
 	mounting_plate_thickness = 3;
 	
-	echo(str("Item: Aluminium Tube OD: 3/4\" (19.15mm) x ID:15mm x Wall:2.032m (14SWG)")); 
+	echo(str("Item: Aluminium Tube OD: 3/4inch (19.15mm) x ID:15mm x Wall:2.032m (14SWG)")); 
 	echo(str("Item: Aluminium Sheet ",Ycarriage_length,"mm x ",Ycarriage_width,"mm x 3mm WxDxH"));
 
 	difference()
@@ -29,12 +29,12 @@ module y_carriage(Yaxis_seperation)
 				difference()
 				{
 					translate([i*Yaxis_seperation/2,0,0]) rotate([90,0,0])
-						cylinder(h=Ycarriage_length, d=LMOP_dia(bearing_type)+4.15, $fn=50, center=true); //tube 19.15mm (3/4 inch) OD x 15mm ID x 2.032mm (14 SWG) wall
+						cylinder(h=Ycarriage_length, d=LM_dia(bearing_type)+4.15, $fn=50, center=true); //tube 19.15mm (3/4 inch) OD x 15mm ID x 2.032mm (14 SWG) wall
 					translate([i*Yaxis_seperation/2,0.1,0]) rotate([90,0,0])
-						cylinder(h=Ycarriage_length+1, d=LMOP_dia(bearing_type), $fn=50, center=true); //inner diameter hole
+						cylinder(h=Ycarriage_length+1, d=LM_dia(bearing_type), $fn=50, center=true); //inner diameter hole
 					translate([0,0,3+19.15/2-0.5])
 						cube(size=[Ycarriage_width*2,Ycarriage_length+1,6], center=true); //top 0.5 cut off
-					translate([0,0,-7])
+					*translate([0,0,-7])
 						cube(size=[Ycarriage_width*2,Ycarriage_length+1,6], center=true); //bottom bit cut off
 				}
 				
@@ -43,9 +43,9 @@ module y_carriage(Yaxis_seperation)
 				{
 					for(j=[1,-1])
 					{
-						translate([i*(Yaxis_seperation/2),j*(LMOP_length(bearing_type)+6),0])
+						translate([i*(Yaxis_seperation/2),j*(LM_length(bearing_type)+6),0])
 							rotate([90,0,0])
-								LMOP(bearing_type);
+								LM(bearing_type);
 					}
 				}
 			}
@@ -53,7 +53,7 @@ module y_carriage(Yaxis_seperation)
 			//mounting plate
 			color("Gainsboro")
 			render(convexity = 2)
-			translate([0,0,(LMOP_dia(bearing_type)+4.15)/2-0.5])
+			translate([0,0,(LM_dia(bearing_type)+4.15)/2-0.5])
 			{
 				difference()
 				{
