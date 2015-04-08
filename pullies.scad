@@ -80,14 +80,14 @@ module pulley(type)
 	{
 		metal_pulley(GT2x20_5mm_bore);
 	}
-	if(type == "GT2x20_5mm_bore")
+	if(type == "GT2x20_8mm_bore")
 	{
 		metal_pulley(GT2x20_8mm_bore);
 	}
-	if(type == "GT2x20_5mm_bore")
+	if(type == "GT2x16_small")
 	{
 		metal_pulley(GT2x16_small);
 	}
 }
 
-pulley("GT2x20_5mm_bore");
+pulley("GT2x16_small");
