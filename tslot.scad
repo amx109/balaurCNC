@@ -11,6 +11,9 @@ tslot_30   = [30, 0, 2, 6, 5, 10.5];
 tslot_8x30 = [30, 0, 2, 8, 7, 10.8];
 tslot_40   = [40, 0, 2, 8, 6.8, 15.5];
 
+function tslot_gap(size) = size==20 ? tslot_20[3] : size==30 ? tslot_30[3] : size=="8x30" ? tslot_8x30[3] : size==40 ? tslot_40[3] : undef;
+function tslot_centre_dia(size) = size==20 ? tslot_20[4] : size==30 ? tslot_30[4] : size=="8x30" ? tslot_8x30[4] : size==40 ? tslot_40[4] : undef;
+
 module tslot(size, length)
 {
 	echo(str("Item: T-Slot size ", size, "mm Length: ", length, "mm"));
@@ -36,6 +39,27 @@ module tslot_nut(size, M)
 	if(size == 40)
 		_tslot_nut(tslot_40+[0,20,0,0,0,0],M);
 }
+
+module tslot_butterfly_washer(size)
+{
+	echo(str("Item: T-Slot ", size, "mm butterfly washer M",tslot_centre_dia(size)+1));
+	
+	render()
+	translate([0, 0, 2/2])
+	difference()
+	{
+		cube(size=[15, tslot_gap(size), 2], center=true);
+		cylinder(d=tslot_centre_dia(size), h=10, $fn=50, center=true);
+	}
+	
+	translate([0, 0, -2/2])
+	difference()
+	{
+		cube(size=[15, tslot_gap(size)+6, 2], center=true);
+		cylinder(d=tslot_centre_dia(size), h=10, $fn=50, center=true);
+	}
+}
+
 module _tslot(dims)
 {
 	size=dims[0];		//size of each side
@@ -105,4 +129,5 @@ module _tslot_nut(dims,M)
 }
 
 tslot(30, 100);
-translate([30,0,0]) tslot_nut(30, 5); 
+translate([0, 30,0]) tslot_nut(30, 5); 
+translate([0, -30+30, 12]) tslot_butterfly_washer(30); 
