@@ -1,250 +1,221 @@
-use <LM__UU.scad>
-use <LM__UUOP.scad>
 use <ironmongery.scad>
-/***
- * 
- *  Set this variable to false if you want a model that you can display.
- *  otherwise it will show the carriage in display format
- * 
- */
-display = true;
-threaded = true;
+use <hiwin.scad>
+
 $fn=50;
 
-bearing_gap = 10;
-wall_thickness = 2.3;
-front_carriage_depth = 19.5; //measured from the axial centre of the smooth rod - hardwired in balaurCNC design - i made this number up (its the only explanation)
+z_carriage("12H", 56, 3);
 
-z_carriage("LM8", 56);
-translate([display? -50 : 0, display? -50 : -35, 0]) z_carriage("LM8", 56);
-
-
-module z_carriage(bearing_type, Yaxis_seperation)
+module z_carriage(bearing_type, Yaxis_seperation, wall_material_thickness)
 {
-	echo(str("*************** Z Carriage *******************"));
-	echo(str("Item: Z Carriage"));
+	/* rather than build this model from one solid block it was decided that 
+	 * this part would be modelled so that it can be built up from 3mm sheet aluminium.
+	 * each layer is drawn and modelled seperately with special actions for certain layers
+	 */ 
 	
-	bearing_dia = LM_dia(bearing_type);
-	bearing_length = LM_length(bearing_type);
-	rod_dia = LM_rod_dia(bearing_type);
-	carriage_height = bearing_length*2 + bearing_gap + wall_thickness*2;
-	carriage_width = bearing_dia + wall_thickness*2;
+	layers = 4; //how many layers deep we want the part to be
+	bushing_holder_dims = [mgn_bushing_width(bearing_type)+8, wall_material_thickness*layers, mgn_bushing_length(bearing_type)+2];
 	
+	color("darkgray")
+	render()
 	difference()
 	{
-		//bearing holder + inserts + y rod holder + fillets
-		color("MediumSeaGreen")
-		render(convexity = 6)
-		union()
+		union() //main body of carraige
 		{
-			bearing_holder(carriage_width, carriage_height, bearing_dia);
-			bearing_captive_inserts(bearing_dia, bearing_length, show_bearings = display?1:0);
-			
-			//Y axis rail holders
-			//color("blue")
-			for(i=[0,1]) 
-				mirror([i,0,0])
-					translate([Yaxis_seperation/2, front_carriage_depth-(front_carriage_depth+bearing_dia/2)/2, -carriage_height/2])
-						rail_holders(bearing_type, Yaxis_seperation);
-			
-			//color("pink")
-			{
-				fillets(Yaxis_seperation, carriage_width, carriage_height); //fillet LHS
-				mirror([1,0,0]) fillets(Yaxis_seperation, carriage_width, carriage_height); //fillet RHS
-			}
+			for(i=[0:layers])
+				//color([ 0.01*i, 0.15*i, 0.2*i ]) //uncomment this to show each layer in a diff colour
+				translate([0, 3/2-(wall_material_thickness*i), 0])
+					difference()
+					{
+						union()
+						{
+							//main body
+							cube(size=[bushing_holder_dims[0], wall_material_thickness, bushing_holder_dims[2]], center=true);
+							
+							//top bolt hole surround
+							for(j=[1,-1])
+								translate([j*bushing_holder_dims[0]/2, 0, bushing_holder_dims[2]/2-8/2])
+									rotate([90,0,0])
+										cylinder(d=8, h=wall_material_thickness, $fn=50, center=true);
+							
+							//front half of carriage section
+							if(i<3)
+							{
+								//bottom fillet
+								for(j=[0,1])
+									mirror([j,0,0])
+										translate([bushing_holder_dims[0]/2-0.1/2, -0.1/2, -bushing_holder_dims[2]/2])
+											fillet(22/2+0.1, wall_material_thickness+0.1, 22/2);
+							}
+							
+							//rear half of carriage section
+							if (i>2)
+								for(j=[1,-1])
+								{
+									translate([j*Yaxis_seperation/2, 0, -12.7])
+									{
+										if(j==1) //LHS
+										{
+											//cylinder holder for the rails
+											rotate([90,0,0])
+												cylinder(d=22, h=wall_material_thickness, $fn=50, center=true);
+											//attachment to bushing holder
+											translate([j*-15/2, 0, 0])
+												cube(size=[15, wall_material_thickness, 22], center=true);
+										}
+										else //RHS
+										{
+											//roundrect for rail holder and y-belt idle bearing
+											if(j==-1)
+												translate([0.5, 0, 0])
+													rotate([90, 0, 0])
+														roundRect([23, 22, wall_material_thickness], 3);
+										}
+										
+										//additional screw clamp hole surrounds at the bottom
+										translate([j*22/2,0,-22/2+8/2])
+										{
+											rotate([90,0,0])
+												cylinder(d=8, h=wall_material_thickness, $fn=50, center=true);
+											translate([j*-11/2, 0, 0])
+												cube(size=[11, wall_material_thickness, 8], center=true);
+										}
+									}
+									
+									//pillar for extra strengthing of wall adjacent to bushing
+									translate([j*bushing_holder_dims[0]/2, 0, bushing_holder_dims[2]/4-8/2])
+										cube(size=[8, wall_material_thickness, bushing_holder_dims[2]/2], center=true);
+									
+									//fillet from rail to bushing wall
+									mirror([j==-1?1:0, 0, 0])
+										translate([bushing_holder_dims[0]/2+8/2-0.1, 0, -3.2])
+											fillet(12+0.1, wall_material_thickness, bushing_holder_dims[2]/2);
+								}
+						}
+						
+						//tbone for layer 1 - cnc mill feature
+						if(i==1)
+						{
+							for(j=[1,-1])
+								for(k=[1,-1])
+									translate([j*mgn_bushing_width(bearing_type)/2, 0, k*(mgn_bushing_length(bearing_type)/2-3/2)])
+										rotate([90,0,0])
+											cylinder(d=3, h=3.05, $fn=50, center=true);
+						}
+					}
 		}
 		
-		//z threaded rod + nut
-		translate([0,front_carriage_depth-4.5,0]) //Y=15
+		/**** all the things to remove from the carriage model ****/
+		
+		//ensure 1mm gap from the brace wall
+		translate([0, -13-10/2+1, 0])
+			cube(size=[100, 10, 50], center=true);
+		
+		//room for the bushing+everything behind it
+		translate([0, -mgn_rail_height(bearing_type)/2-mgn_bushing_height(bearing_type)/2, 0])
 		{
-			cylinder(d=7.5, h=80, $fn=50, center=true);
-			translate([0,0,carriage_height/2])
-				cylinder(d=6*1.9, h=6*0.8, $fn=6, center=true); //nut(6, flat=true);
+			*rotate([0,90,90])
+				#mgn(bearing_type); //for visual display purposes
+			
+			translate([0,mgn_rail_height(bearing_type)/2-20/2,0])
+				cube(size=[mgn_bushing_width(bearing_type), mgn_bushing_height(bearing_type)+20, mgn_bushing_length(bearing_type)], center=true);
+
+			cube(size=[mgn_bushing_width(bearing_type), wall_material_thickness*(4), mgn_bushing_length(bearing_type)+10], center=true);
+			
 		}
 		
-		//holes for the bolts to hold y rails
+		//top bolt holes
+		for(i=[1,-1])
+			translate([i*bushing_holder_dims[0]/2, 0, bushing_holder_dims[2]/2-8/2])
+				rotate([90,0,0])
+					cylinder(d=3, h=40, $fn=50, center=true);
+		
+		//bottom bolt holes
+		for(i=[1,-1])
+			translate([i*bushing_holder_dims[0]/2, 0, -bushing_holder_dims[2]/2+3])
+				rotate([90,0,0])
+					cylinder(d=3, h=40, $fn=50, center=true);
+		
+		//bottom bolt holes #2 (out wide)
+		for(i=[1,-1])
+			translate([i*(Yaxis_seperation/2+22/2), 0, -12.7-22/2+8/2])
+				rotate([90,0,0])
+					cylinder(d=3, h=40, $fn=50, center=true);
+		
+		//bushing screw holes
 		for(i=[1,-1])
 			for(j=[1,-1])
-				translate([Yaxis_seperation/2*i+Yaxis_seperation/7*j, -bearing_dia/2+3.33, -20])
-					cylinder(d=3, h=30, $fn=50, center=true);
+				rotate([90,0,0])
+					translate([i*mgn_bushing_holes(bearing_type)[0]/2, j*mgn_bushing_holes(bearing_type)[1]/2, 0])
+							cylinder(d=3, h=50, $fn=50, center=true);
 		
-		//translate([0,0,45]) cube(size=[30,40,50], center=true); //allows me to check bearing holder cross section
+		//the y carriage rails
+		for(i=[1,-1])
+			translate([i*Yaxis_seperation/2, 100/2-4.5, -12.7])
+				rotate([90,0,0])
+						cylinder(d=8, h=115-2, $fn=50, center=true);
+		
+		//y belt idler bearing spindle
+		translate([-Yaxis_seperation/2-8, -9, -10])
+			cube(size=[3, 3, 40], center=true);
+			
 	}
 	
-	//clamp bolts + nut for show
-	if(display)
+	//for visual display part placing verification, please ignore
+	*#union() //the y carriage tubey bits + y belt pully
 	{
-		*translate([0,front_carriage_depth-4.5,carriage_height/2])
-			nut(6, flat=true);
+		for(i=[1,-1])
+			translate([i*Yaxis_seperation/2, 100/2-5.5, -12.7])
+			{
+				rotate([90,0,0]) 
+					cylinder(d=19.15, h=100, $fn=50, center=true);
+				
+				//y carriage square plate
+				translate([0, -10, 19.15/2+1])
+					cube(size=[19.15, 80, 3], center=true);
+			}
+		
+		//the y carriage rails
+		for(i=[1,-1])
+				translate([i*Yaxis_seperation/2, 100/2-4.5, -12.7])
+					rotate([90,0,0])
+							cylinder(d=8, h=115-2, $fn=50, center=true);
+		
+		//y belt stuff
+		translate([-Yaxis_seperation/2-8, -8.75, 9-9])
+		{
+			cylinder(d=3, h=40, $fn=50, center=true);
+			translate([0,0,9])
+				cylinder(d=6, h=15, $fn=50, center=true);
+		}
+		
+		translate([0,-9,0])
+		{
+			rotate([0,90,90])
+				mgn_rail(bearing_type, 100);
+		}
 		
 		for(i=[1,-1])
-		{
-			*translate([Yaxis_seperation/2-Yaxis_seperation/7*i, -bearing_dia/2+3.33, -carriage_height/2])
-			{
-				translate([0,0,24]) bolt(3, 29, 0, threaded=threaded);
-				translate([0,0,-1]) nut(3);
-			}
-			translate([0, 0, (bearing_length/2+bearing_gap/2-0.25)*i])
-				LM(bearing_type);
-		}
-		
-		
-		*translate([	-Yaxis_seperation/2+Yaxis_seperation/7,
-					-bearing_dia/2+3.33,-carriage_height/2])
-		{
-			translate([0,0,23.7]) bolt(3, 29, 0, threaded);
-			translate([0,0,-1]) nut(3);
-		}
-		
-	}
-}
-
-module bearing_holder(carriage_width, carriage_height, bearing_dia)
-{
-	//main vertical body of the carriage for the bearings
-	difference()
-	{
-		hull()
-		{
-			//bulk for use as anchor for Z nut+threaded rod
-			translate([0, front_carriage_depth-carriage_width/(3*2), 0])
-				cube(size=[carriage_width, carriage_width/3, carriage_height], center=true);
-			
-			//bearing holder
-			cylinder(d=carriage_width, h=carriage_height, center=true, $fn=50);
-		}
-		
-		//space for bearings
-		cylinder(d=bearing_dia, h=carriage_height+5, center=true, $fn=50);
-		
-		//cut out for bearing holder
-		translate([0,-carriage_width/1.7,0])
-			rotate([0,0,45])
-				cube(size=[carriage_width,carriage_width,carriage_height+5], center=true);
-	}
-	*translate([0,-25-carriage_width/2+wall_thickness,0]) cube(size=[50,50,50], center=true);
-}
-
-module bearing_captive_inserts(bearing_dia, bearing_length, show_bearings=false)
-{
-	spacer = 0.25;
-	for(i=[1,-1])
-	{
-		translate([0, bearing_dia/2, (bearing_gap/2-wall_thickness/2)*i])
-		{
-			translate([0,0,i*-spacer*2]) cube(size=[bearing_dia, bearing_dia/4, wall_thickness], center=true);
-			translate([0, 0, (bearing_length+wall_thickness)*i])
-				cube(size=[bearing_dia, bearing_dia/4 ,wall_thickness], center=true);
-		}
-	}
-}
-
-module rail_holders(bearing_type, Yaxis_seperation)
-{
-	//re-compute all the things!
-	bearing_dia = LM_dia(bearing_type);
-	bearing_length = LM_length(bearing_type);
-	rod_dia = LM_rod_dia(bearing_type);
-	carriage_height = bearing_length*2 + bearing_gap + wall_thickness*2;
-	carriage_width = bearing_dia + wall_thickness*2;
-	
-	//the lower block
-	difference()
-	{
-		//main block
-		translate([0,0.00295,carriage_height/4.5/2])
-			roundRect([Yaxis_seperation/2.5, front_carriage_depth+bearing_dia/2, carriage_height/4.5], 3);
-			//cube(size=[Yaxis_seperation/2.5, front_carriage_depth+bearing_dia/2, carriage_height/4.5], center=true);
-		
-		//where the rods sit
-		translate([0,0,carriage_height/4.5])
-		{
-			rotate([90,0,0])
-				cylinder(r=rod_dia/2, h=40, center=true, $fn=50);
-		
-			//the bit with the bearings+carriage on top
-			translate([0,6.5,0])
-			{
-				union()
+			translate([i*bushing_holder_dims[0]/2, -9, -bushing_holder_dims[2]/2+3])
+				rotate([90,0,0])
 				{
-					//where ze bearing goes
-					translate([0, -((front_carriage_depth+bearing_dia/2)-bearing_length)/2, 0]) 
-						rotate([90,0,0])
-							LMOP_oversize(bearing_type);
-					//side bits
-					for(k=[1,-1])
-						translate([10.74*k, 0, -0.971])
-							cube(size=[Yaxis_seperation/5, front_carriage_depth+bearing_dia/2, carriage_height/7], center=true);
-					
-					//top bit where the rod is because openscad
-					translate([0,0,2.219])
-						cube(size=[Yaxis_seperation/5, front_carriage_depth+bearing_dia/2, carriage_height/7], center=true);
+					bolt(M=3, length=15);
+					translate([0,0,-13])
+						rotate([0,0,35])
+						nut(M=3);
 				}
-			}
-		}
-	}
-	
-	//clampy bits for the Y axis rod
-	translate([	0,
-				display? 6.5/2-(front_carriage_depth+bearing_dia/2)/2 : 17.5,
-				display? carriage_height/4.5 : -0.5])
-	{
-		difference()
-		{
-			//main block
-			translate([0,0,0.5+9/2])
-				//linear_extrude(height=9) roundedSquare(pos=[Yaxis_seperation/2.5, 6.5],r=3);
-				roundRect([Yaxis_seperation/2.5, 6.5, 9], 3);
-			//where the rod goes
-			rotate([90,0,0])
-				cylinder(r=rod_dia/2, h=40, center=true, $fn=50);
-			//bolt holes (M3)
-			for(j=[1,-1])
-				translate([Yaxis_seperation/7*j, 0.08, 0]) cylinder(d=3, h=100, $fn=50, center=true);
-		}
+		for(i=[1,-1])
+			translate([i*(Yaxis_seperation/2+22/2), -10.2, -12.7-22/2+8/2])
+				rotate([90,0,0])
+				{
+					bolt(M=3, length=10, csk=true);
+					translate([0,0,-5])
+						rotate([0,0,25])
+							nut(M=3);
+				}
 	}
 }
 
-module fillets(Yaxis_seperation, carriage_width, carriage_height)
+module z_carriage_render_for_milling()
 {
-	bearing_dia = carriage_width - wall_thickness*2;
 	
-	//big big fillet. mega fillet
-	
-	difference()
-	{
-		//width of fillet should be muliple of yaxis_sep, yet distance from origin should relate to carriage width
-		translate([	Yaxis_seperation/(6*2)+carriage_width/2-0.1-3/2,
-					front_carriage_depth-(front_carriage_depth+bearing_dia/2)/2,
-					-carriage_height/4])
-			cube(size=[Yaxis_seperation/6+5,
-						front_carriage_depth+bearing_dia/2,
-						carriage_height/2], 
-						center=true);
-		
-		//rear most fillet
-		translate([Yaxis_seperation/2-(Yaxis_seperation/2.5)/2+1+3, -7/2-bearing_dia/2+6.52, -carriage_height/2+carriage_height/4.5+carriage_height*(0.5/2)-0.55])
-			rotate([90,0,0])
-				cylinder(h=7, d=carriage_height*0.5, center=true, $fn=100);
-		
-		//front shallow fillet to make sure no clash with bearing
-		translate([(carriage_height*1.1)/2+carriage_width/2, 30/2-1, 0])
-			rotate([90,0,0])
-				cylinder(h=30, d=carriage_height*1.1, center=true, $fn=100);
-		
-		//vertical curved fillet that meets the bearing holder
-		translate([	Yaxis_seperation/2-(Yaxis_seperation/2.5)/2 - (front_carriage_depth+bearing_dia/2+3)/2,
-					-bearing_dia/2,
-					40/2-carriage_height/2-0.1])
-			cylinder(h=40, d=front_carriage_depth+bearing_dia/2+3, center=true, $fn=100);
-		
-		//make way for the clampy bits for the Y axis rod
-		translate([Yaxis_seperation/2,
-					6.5/2-front_carriage_depth,
-					-carriage_height/2+carriage_height/4.5-1])
-				//translate([0,0,0.5]) linear_extrude(height=9) roundedSquare(pos=[Yaxis_seperation/2.5+0.5,6.5+0.5],r=3);
-				translate([0,0,0.5+9/2]) roundRect([Yaxis_seperation/2.5+0.5,6.5+0.5, 9], 3);
-	}
 }
-
-
