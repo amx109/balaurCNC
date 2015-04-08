@@ -58,8 +58,6 @@ module egr(size, rlength)
 	}
 }
 
-
-
 module egh_ca_(dims)
 {
 	H = dims[0];
@@ -199,7 +197,7 @@ module mgn_rail_(dims, length)
 	P = dims[19];
 	E = dims[20];
 	
-	color("gray")
+	color("WhiteSmoke")
 	//render()
 	difference()
 	{
