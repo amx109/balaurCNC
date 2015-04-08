@@ -33,7 +33,10 @@ function case_lid_int_Z() = case_lid_int_Z;
 
 module briefcase()
 {
-	color(Aluminum)
+	echo(str("Item: Briefcase ",caseX(),"x",caseY(),"x",caseZ()));
+	
+	color("lightgray")
+	render()
 	{
 		//top part
 		translate([0,(case_lid_ext_Z/2)+(caseY/2),(caseY/2)+case_bottom_ext_Z/2])
