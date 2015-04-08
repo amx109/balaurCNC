@@ -17,7 +17,7 @@ SRSS__3 = [	3.18, 9.53, 	12.7, 2.41, (3/8)*25.4, 	24, 6.35];
 SRSS__6 = [	6.35, 12.70, 	19.1, 5.13, (7/16)*25.4, 	20, 6.35];
 SRSS__10 = [9.53, 15.88, 	25.4, 7.77, (9/16)*25.4, 	20, 9.53]; // 9⁄16 inch: 0.5625inch \ 14.2875mm
 
-function SRSS_dia(size) 	= size == 3 ? SRSS__3[1] : size == 6 ? SRSS__6[1] : size == 10 ? SRSS__10[1] : undef;
+function SRSS_dia(size) 	= size == 3 ? SRSS__3[0] : size == 6 ? SRSS__6[0] : size == 10 ? SRSS__10[0] : undef;
 function SRSS_length(size) 	= size == 3 ? SRSS__3[2] : size == 6 ? SRSS__6[2] : size == 10 ? SRSS__10[2] : undef;
 
 module SRSSBP(size) //plain bushing no thread
