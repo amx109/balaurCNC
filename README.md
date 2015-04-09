@@ -7,8 +7,8 @@ The name comes from https://en.wikipedia.org/wiki/Balaur
 * produce a machine with an A4 bed
 * fits inside a standard size tool briefcase
 * must be capable of additive and subtractive manufacturing
-** 3D printing
-** lightweight cnc mill
+  * 3D printing
+  * lightweight cnc mill
 
 # TODO
 
