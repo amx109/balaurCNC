@@ -1,30 +1,39 @@
+//centre of base plate is centre of model
+
+function toggle_clamp_holes() = [(14.2/2-11.1/2)/2+11.1/2, 15.9/2];
+
 module toggle_clamp()
 {
+	base_plate_dims = [24.4, 23.5, 2];
+	hole_seperation_min = 11.1;
+	hole_seperation_max = 14.2;
+	hole_width = 15.9;
+	hole_size = 4.4;
+	
 	color("Silver")
-	difference() //base
+	render()
+	difference()
 	{
-		translate([0,0, 1/2]) cube(size=[23.8, 23.8, 1], center=true);
+		//base plate
+		translate([0,0, 1/2]) cube(size=base_plate_dims, center=true);
+		
+		//mounting holes
 		for(i=[1,-1])
-		{
 			for(j=[1,-1])
-			{
-				translate([((11.1/2)+((15.9-11.1)/2)/2)*j, (15.9/2)*i, 0])
-				{
+				translate([i*(hole_seperation_max/2-(hole_seperation_max-hole_seperation_min)/4), j*hole_width/2, 0])
 					union()
 					{
-						cube(size=[(15.9-11.1)/2, 4.4, 1.1], center=true);
+						cube(size=[(hole_seperation_max-hole_seperation_min)/2, hole_size, 5], center=true);
 						for(i=[1,-1])
-							translate([i*((15.9-11.1)/2)/2,0,0])
-								cylinder(d=4.4, h=1.1, $fn=50, center=true);
+							translate([i*((hole_seperation_max-hole_seperation_min)/2)/2,0,0])
+								cylinder(d=hole_size, h=5, $fn=50, center=true);
 					}
-				}
-			}
-		}
 	}
 	
 	//clamp end
 	color("Silver")
-	translate([-17.5-(23.8/2), 0, (3.2/2)+9.5])
+	render()
+	translate([-base_plate_dims[0]/2-17.5, 0, (3.2/2)+9.55])
 		difference()
 		{
 			cylinder(d=9.5, h=3.2, $fn=50, center=true);
@@ -32,26 +41,31 @@ module toggle_clamp()
 		}
 	
 	color("Silver")
-	translate([-23.8/2-15/2, 0, (3.2/2)+9.5]) 
+	render()
+	translate([-23.8/2-15/2, 0, (3.2/2)+9.55]) 
 		cube(size=[15,8,3.2], center=true);
 	
 	//central mount
 	color("Silver")
+	render()
 	translate([0, 0, 17/2]) 
-	cube(size=[23.8, 1, 17], center=true);
+		cube(size=[23.8, 1, 17], center=true);
 	
 	//lever
 	color("Red")
-	translate([(77.11-20)/2-23.8/2, 0, (3.2/2)+9.5])
-		cube(size=[(77.11-20), 9, 3.2], center=true);
+	render()
+	translate([(79.25-22.25)/2-base_plate_dims[0]/2, 0, (3.2/2)+9.5])
+		cube(size=[(79.25-22.25), 9, 3.2], center=true);
 		
 	//stopper
 	color("Silver")
-	translate([-17.5-(23.8/2), 0, 20/2])
+	render()
+	translate([-17.5-(base_plate_dims[0]/2), 0, 20/2])
 		cylinder(d=4, h=20, $fn=50, center=true);
 	
 	color("Black")
-	translate([-17.5-(23.8/2), 0, 6/2]) 
+	render()
+	translate([-17.5-(base_plate_dims[0]/2), 0, 6/2]) 
 		cylinder(d1=4, d2=8, h=6, $fn=50, center=true);
 		
 	echo(str("Item: Toggle Clamp (27Kg)"));
