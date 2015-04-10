@@ -38,7 +38,7 @@ bedleftright = 0; // 1 = along -ve X, 0 = along +ve X - both at max positions
 //variables to fiddle with Y axis position/A4 bed X axis position
 bed_X_shift = moveBed ? (bedleftright ? -A4_length/2 : A4_length/2) : (folded ? -60 : 0); //sets x carriage position, do not touch
 Yaxis_position    = -105; //-105 for non-y drive end, 105 for y drive end
-Yaxis_Z_position  = folded ? 290 : 110; //110 = Z0, maxZ = 219. build height in Z is 219-110 = 109mm
+Yaxis_Z_position  = folded ? Zheight-30 : 110; //110 = Z0, maxZ = 219. build height in Z is 219-110 = 109mm
 
 echosize("Print height is", Zheight-110);
 echo(str("Item: Aluminium Sheet: (A3) 420x297x3 WxDxH")); //for BOM generation
@@ -55,7 +55,7 @@ module draw()
 	*  Y axis is front to back
 	*  Z is up/down
 	*/
-	translate([	folded ? -170 : 0,
+	translate([	folded ? -Zheight/2-20 : 0,
 				0,
 				folded ? Yaxis_seperation+18-9 : 0]) //on folded, raise the YZ to enable rotation
 		rotate([0,folded ? 87 : 0,0]) //angle to rotate when folded
@@ -110,17 +110,13 @@ module Xaxis()
 				
 				//tslot nuts+screws for bottom+base
 				translate([case_bottom_int_X()/2-10, 0, 0])
-				{
 					rotate([0, 180, 0])
-					{
 						for(i=[0:(case_bottom_int_X()-10)/80])
 							translate([i*80, 0, 0])
 							{ 
 								translate([0,0,0.6]) bolt(M=4, length=10, csk=true, threaded=threaded);
 								translate([0,0,-5.5]) tslot_nut(tslot_size, M=4);
 							}
-					}
-				}
 				
 				//tslot butterfly washer for securing 90deg tslot
 				for(i=[1,-1])
@@ -143,7 +139,7 @@ module Xaxis()
 						translate([0,0,-5.2]) 	tslot_nut(tslot_size, M=4);
 						translate([0,0,3]) 		bolt(4,10, threaded=threaded, comments="socket cap");
 					}
-					translate([-((case_bottom_int_X()-NEMA_width(nemaTypeZ))/2-12)+7,0,0])
+					translate([-((case_bottom_int_X()-NEMA_width(nemaTypeZ))/2-12)+11,0,0])
 					{
 						translate([0,0,-5.2])	tslot_nut(tslot_size, M=4);
 						translate([0,0,3]) 		bolt(4,10, threaded=threaded, comments="socket cap");
@@ -151,12 +147,12 @@ module Xaxis()
 				}
 				
 				//anchors for Y/Z axis
-				translate([-NEMA_width(nemaTypeZ)/2-10, 0, wall_material_thickness/2+tslot_size]) 
+				translate([-NEMA_width(nemaTypeZ)/2-10.45, 0, wall_material_thickness/2+tslot_size]) 
 					translate([i==0 ? -NEMA_width(nemaTypeY)-3:0, 0, 0]) //move further back on far side cos of Y axis stepper
 					{
 						anchor();
 						translate([-5,0,-7]) tslot_nut(tslot_size, M=4);
-						translate([0,0,4]) bolt(4,10,threaded=threaded, comments="socket cap");
+						translate([-0.5,0,4]) bolt(4,10,threaded=threaded, comments="socket cap");
 					}
 			}
 		
@@ -586,6 +582,9 @@ module Zaxis()
 				}
 			}
 	
+	*translate([NEMA_width(nemaTypeZ)/2+20/2-3, 0, 20/2+Zheight+7])
+		rotate([0, 0, 90])
+			tslot(20, case_bottom_int_Y()-(3*2));
 	echo("********************** Z Axis END *****************************");
 }
 
@@ -705,19 +704,41 @@ module brace(wall_thickness, width, height, gauge, net=false)
 							}
 						
 						//toggle clamp section
-						translate([i*-tslot_size/2, -12/2-gauge/2, 0])
-							cube(size=[tslot_size, 12, wall_thickness], center=true); 
+						translate([i*-tslot_size/2, -12/2-gauge/2+0.1, 0])
+						{
+							difference()
+							{
+								cube(size=[tslot_size, 12+0.1, wall_thickness], center=true);
+								for(i=[1,-1])
+									translate([i*(15/2+3/2), -12.1/2, 0])
+										cylinder(d=3, h=3.1, $fn=50, center=true);
+							}
+							translate([0, -12/2-5/2+0.1, 0])
+								cube(size=[15, 5+0.1, wall_thickness], center=true);
+						}
 					}
 					
-					//finger joints
+					//finger joints for vertical sections
 					translate([i*(6/2-3), -extra_depth/2, 6/3-0.5+1])
 						mirror([i==-1? 1:0,0,0])
 							finger_join(1, 1, gauge+extra_depth);	//poisiton shape 3mm in from long edge, 1mm up from floor.
 				}
 				
 				//rear anchor section
-					translate([i*-tslot_size/2, (gauge/2+5/2)+(i==1? NEMA_width(nemaTypeY)+3:0), 0])
-						cube(size=[tslot_size, 5, wall_thickness], center=true);
+				translate([i*-tslot_size/2, (gauge/2+5/2)+(i==1? NEMA_width(nemaTypeY)+3:0)-0.1, 0])
+				{
+					difference()
+					{
+						cube(size=[tslot_size, 5+0.1, wall_thickness], center=true);
+						//tbone for cnc milling
+						for(j=[1,-1])
+							translate([j*(15/2+3/2), 5.1/2, 0])
+								cylinder(d=3, h=3.1, $fn=50, center=true);
+					}
+					//locating finger
+					translate([0, 5/2+2/2, 0])
+						cube(size=[15, 2+0.1, wall_thickness], center=true);
+				}
 			}
 		
 		//vertical bits
@@ -929,18 +950,55 @@ module doobery(length, net=false)
 			//alu strip
 			cube(size=[length,tslot_size,wall_material_thickness], center=true);
 			
+			//space for the brace 'finger'
+			translate([-length/2+5/2-0.1, 0, 0])
+				cube(size=[5+0.1, 15, wall_material_thickness], center=true);
+			//tbone cuts for cnc milling
+			for(i=[1,-1])
+				translate([-length/2+5, i*(15/2-3/2), 0])
+					cylinder(d=3, h=3.1, $fn=50, center=true);
+				
 			//holes for the M4 threaded bolts
 			translate([length/2-20, 0, 0])
 				cylinder(d=4, h=10, $fn=50, center=true);
-			translate([-(length/2-7), 0, 0])
+			translate([-length/2+11, 0, 0])
 				cylinder(d=4, h=10, $fn=50, center=true);
-				
+			
+			//magic slopes
+			translate([-length/2-0.6, 0, 1])
+				rotate([0, -45, 0])
+					cube(size=[20, tslot_size, 3], center=true);
+			translate([-length/2+4.3, 0, 1])
+				rotate([0, -45, 0])
+					cube(size=[20, 15, 3], center=true);
+			
 			//holes for the toggle clamp
+			translate([-length/2+27.5, 0, 0])
+				for(i=[1,-1])
+					for(j=[1,-1])
+						translate([i*toggle_clamp_holes()[0], j*toggle_clamp_holes()[1], 0])
+							cylinder(d=4, h=4, $fn=50, center=true);
 		}
 	
+	
 	if(!net)
-		translate([25-length/2,0,3/2])
+	{
+		translate([-length/2+27.5,0,3/2])
 			toggle_clamp();
+		
+		//bolts+nuts for toggle clamp
+		translate([-length/2+27.5, 0, 0])
+				for(i=[1,-1])
+					for(j=[1,-1])
+						translate([i*toggle_clamp_holes()[0], j*toggle_clamp_holes()[1], 0])
+						{
+							translate([0, 0, 1])
+								rotate([0, 180, 0])
+									bolt(M=4, length=10, csk=true);
+							translate([0, 0, 4])
+								nut(M=4);
+						}
+	}
 }
 
 module anchor(net=false)
@@ -948,21 +1006,42 @@ module anchor(net=false)
 	color("silver")
 	render()
 	{
-		difference()
-		{
-			translate([0, net ? 0:-wall_material_thickness/2, 0])
-				cube(size=[10, tslot_size-wall_material_thickness, wall_material_thickness], center=true);
-			cylinder(d=4, h=10, $fn=50, center=true);
-		}
-		
-		translate([net ? -10-3-1:(11-10)/2, 0, net ? 0:wall_material_thickness])
-			difference()
+		translate([net ? -10-3-1:0, 0, net ? 0:wall_material_thickness])
+			difference() //top part
 			{
-				translate([0, net ? 0:-wall_material_thickness/2, 0]) 
+				//main block
+				translate([0, -wall_material_thickness/2, 0]) 
 					cube(size=[11, tslot_size-wall_material_thickness, wall_material_thickness], center=true);
+				//screw hole
 				translate([-0.5,0,0])
 					cylinder(d=4, h=10, $fn=50, center=true);
+				//magic slope
+				translate([11/2+3.65-1, 0, 0])
+					rotate([0, -45, 0])
+						cube(size=[20, 15, 3], center=true);
 			}
+		
+		difference() //bottom part
+		{
+			//main block
+			translate([0, -wall_material_thickness/2, 0])
+				cube(size=[11, tslot_size-wall_material_thickness, wall_material_thickness], center=true);
+			//inset area
+			translate([11/2-3/2+1, 0, 0])
+				cube(size=[3, 15, wall_material_thickness+0.1], center=true);
+			//tbone for cnc milling
+			for(i=[1,-1])
+				translate([11/2-2, i*(15/2-3/2), 0])
+					cylinder(d=3, h=3.1, $fn=50, center=true);
+			//screw hole
+			translate([-0.5,0,0])
+				cylinder(d=4, h=10, $fn=50, center=true);
+			//magic slope
+			translate([11/2+0.1, 0, -0.5])
+				rotate([0, 45, 0])
+					cube(size=[20, 15, 3], center=true);
+					
+		}
 	}
 }
 
